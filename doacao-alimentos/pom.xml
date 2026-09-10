@@ -13,7 +13,7 @@
 
     <packaging>war</packaging>
 
-    <name>Plataforma de Doações de Alimentos</name>
+    <name>DoaFácil</name>
 
     <properties>
 
