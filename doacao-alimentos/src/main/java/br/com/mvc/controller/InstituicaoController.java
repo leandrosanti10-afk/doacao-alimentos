@@ -13,7 +13,8 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet("/instituicao/*")
-public class InstituicaoController extends HttpServlet {
+public class InstituicaoController
+        extends HttpServlet {
 
     private final InstituicaoService instituicaoService =
             new InstituicaoService();
@@ -24,7 +25,8 @@ public class InstituicaoController extends HttpServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String rota = extrairRota(req);
+        String rota =
+                extrairRota(req);
 
         switch (rota) {
 
@@ -33,11 +35,17 @@ public class InstituicaoController extends HttpServlet {
                 break;
 
             case "/inserir":
-                mostrarFormularioNovo(req, resp);
+                mostrarFormularioNovo(
+                        req,
+                        resp
+                );
                 break;
 
             case "/alterar":
-                mostrarFormularioEdicao(req, resp);
+                mostrarFormularioEdicao(
+                        req,
+                        resp
+                );
                 break;
 
             case "/deletar":
@@ -56,7 +64,8 @@ public class InstituicaoController extends HttpServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String rota = extrairRota(req);
+        String rota =
+                extrairRota(req);
 
         switch (rota) {
 
@@ -65,7 +74,10 @@ public class InstituicaoController extends HttpServlet {
                 break;
 
             case "/alterar":
-                salvarAlteracao(req, resp);
+                salvarAlteracao(
+                        req,
+                        resp
+                );
                 break;
 
             default:
@@ -142,7 +154,8 @@ public class InstituicaoController extends HttpServlet {
                 );
 
         Instituicao instituicao =
-                instituicaoService.buscarPorId(id);
+                instituicaoService
+                        .buscarPorId(id);
 
         req.setAttribute(
                 "instituicao",
@@ -162,61 +175,89 @@ public class InstituicaoController extends HttpServlet {
     private void salvarNovo(
             HttpServletRequest req,
             HttpServletResponse resp)
-            throws IOException {
-
-        String nome =
-                req.getParameter("nome");
-
-        String endereco =
-                req.getParameter("endereco");
+            throws ServletException, IOException {
 
         Instituicao instituicao =
-                new Instituicao();
+                montarInstituicao(req);
 
-        instituicao.setNome(nome);
-        instituicao.setEndereco(endereco);
+        try {
 
-        instituicaoService.inserir(
-                instituicao
-        );
+            instituicaoService
+                    .inserir(instituicao);
 
-        resp.sendRedirect(
-                req.getContextPath()
-                        + "/instituicao/listar"
-        );
+            resp.sendRedirect(
+                    req.getContextPath()
+                            + "/instituicao/listar"
+            );
+
+        } catch (IllegalArgumentException e) {
+
+            req.setAttribute(
+                    "erro",
+                    e.getMessage()
+            );
+
+            req.setAttribute(
+                    "instituicao",
+                    instituicao
+            );
+
+            req.setAttribute(
+                    "ehEdicao",
+                    false
+            );
+
+            req.getRequestDispatcher(
+                    "/WEB-INF/instituicao/form.jsp"
+            ).forward(req, resp);
+        }
     }
 
     private void salvarAlteracao(
             HttpServletRequest req,
             HttpServletResponse resp)
-            throws IOException {
-
-        Long id =
-                Long.parseLong(
-                        req.getParameter("id")
-                );
-
-        String nome =
-                req.getParameter("nome");
-
-        String endereco =
-                req.getParameter("endereco");
+            throws ServletException, IOException {
 
         Instituicao instituicao =
-                new Instituicao();
+                montarInstituicao(req);
 
-        instituicao.setId(id);
-        instituicao.setNome(nome);
-        instituicao.setEndereco(endereco);
-
-        instituicaoService.alterar(
-                instituicao
+        instituicao.setId(
+                Long.parseLong(
+                        req.getParameter("id")
+                )
         );
 
-        resp.sendRedirect(
-                req.getContextPath()
-                        + "/instituicao/listar"
-        );
+        try {
+
+            instituicaoService
+                    .alterar(instituicao);
+
+            resp.sendRedirect(
+                    req.getContextPath()
+                            + "/instituicao/listar"
+            );
+
+        } catch (IllegalArgumentException e) {
+
+            req.setAttribute(
+                    "erro",
+                    e.getMessage()
+            );
+
+            req.setAttribute(
+                    "instituicao",
+                    instituicao
+            );
+
+            req.setAttribute(
+                    "ehEdicao",
+                    true
+            );
+
+            req.getRequestDispatcher(
+                    "/WEB-INF/instituicao/form.jsp"
+            ).forward(req, resp);
+        }
     }
 
     private void deletar(
@@ -231,7 +272,8 @@ public class InstituicaoController extends HttpServlet {
 
         try {
 
-            instituicaoService.deletar(id);
+            instituicaoService
+                    .deletar(id);
 
             resp.sendRedirect(
                     req.getContextPath()
@@ -247,5 +289,34 @@ public class InstituicaoController extends HttpServlet {
 
             listar(req, resp);
         }
+    }
+
+    private Instituicao montarInstituicao(
+            HttpServletRequest req) {
+
+        Instituicao instituicao =
+                new Instituicao();
+
+        instituicao.setNome(
+                req.getParameter("nome")
+        );
+
+        instituicao.setEndereco(
+                req.getParameter("endereco")
+        );
+
+        instituicao.setTelefone(
+                req.getParameter("telefone")
+        );
+
+        instituicao.setEmail(
+                req.getParameter("email")
+        );
+
+        instituicao.setCidade(
+                req.getParameter("cidade")
+        );
+
+        return instituicao;
     }
 }

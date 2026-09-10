@@ -159,60 +159,129 @@ protected void doGet(
     }
 
     private void salvarNovo(
-            HttpServletRequest req,
-            HttpServletResponse resp)
-            throws IOException {
+                HttpServletRequest req,
+                HttpServletResponse resp)
+                throws ServletException, IOException {
 
-        String nome =
-                req.getParameter("nome");
+        Doador doador = new Doador();
 
-        String email =
-                req.getParameter("email");
-
-        Doador doador =
-                new Doador();
-
-        doador.setNome(nome);
-        doador.setEmail(email);
-
-        doadorService.inserir(doador);
-
-        resp.sendRedirect(
-                req.getContextPath()
-                + "/doador/listar"
+        doador.setNome(
+                req.getParameter("nome")
         );
-    }
 
-    private void salvarAlteracao(
-            HttpServletRequest req,
-            HttpServletResponse resp)
-            throws IOException {
+        doador.setCpfCnpj(
+                req.getParameter("cpfCnpj")
+        );
 
-        Long id =
-                Long.parseLong(
-                        req.getParameter("id")
+        doador.setEmail(
+                req.getParameter("email")
+        );
+
+        doador.setTelefone(
+                req.getParameter("telefone")
+        );
+
+        doador.setCidade(
+                req.getParameter("cidade")
+        );
+
+        try {
+
+                doadorService.inserir(doador);
+
+                resp.sendRedirect(
+                        req.getContextPath()
+                                + "/doador/listar"
                 );
 
-        String nome =
-                req.getParameter("nome");
+        } catch (IllegalArgumentException e) {
 
-        String email =
-                req.getParameter("email");
+                req.setAttribute(
+                        "erro",
+                        e.getMessage()
+                );
+
+                req.setAttribute(
+                        "doador",
+                        doador
+                );
+
+                req.setAttribute(
+                        "ehEdicao",
+                        false
+                );
+
+                req.getRequestDispatcher(
+                        "/WEB-INF/doador/form.jsp"
+                ).forward(req, resp);
+        }
+        }
+
+    private void salvarAlteracao(
+                HttpServletRequest req,
+                HttpServletResponse resp)
+                throws ServletException, IOException {
 
         Doador doador =
                 new Doador();
 
-        doador.setId(id);
-        doador.setNome(nome);
-        doador.setEmail(email);
-
-        doadorService.alterar(doador);
-
-        resp.sendRedirect(
-                req.getContextPath()
-                + "/doador/listar"
+        doador.setId(
+                Long.parseLong(
+                        req.getParameter("id")
+                )
         );
-    }
+
+        doador.setNome(
+                req.getParameter("nome")
+        );
+
+        doador.setCpfCnpj(
+                req.getParameter("cpfCnpj")
+        );
+
+        doador.setEmail(
+                req.getParameter("email")
+        );
+
+        doador.setTelefone(
+                req.getParameter("telefone")
+        );
+
+        doador.setCidade(
+                req.getParameter("cidade")
+        );
+
+        try {
+
+                doadorService.alterar(doador);
+
+                resp.sendRedirect(
+                        req.getContextPath()
+                                + "/doador/listar"
+                );
+
+        } catch (IllegalArgumentException e) {
+
+                req.setAttribute(
+                        "erro",
+                        e.getMessage()
+                );
+
+                req.setAttribute(
+                        "doador",
+                        doador
+                );
+
+                req.setAttribute(
+                        "ehEdicao",
+                        true
+                );
+
+                req.getRequestDispatcher(
+                        "/WEB-INF/doador/form.jsp"
+                ).forward(req, resp);
+        }
+        }
 
     private void deletar(
                 HttpServletRequest req,

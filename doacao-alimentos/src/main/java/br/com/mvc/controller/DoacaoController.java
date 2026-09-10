@@ -19,7 +19,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet("/doacao/*")
-public class DoacaoController extends HttpServlet {
+public class DoacaoController
+        extends HttpServlet {
 
     private final DoacaoService doacaoService =
             new DoacaoService();
@@ -36,7 +37,8 @@ public class DoacaoController extends HttpServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String rota = extrairRota(req);
+        String rota =
+                extrairRota(req);
 
         switch (rota) {
 
@@ -45,11 +47,17 @@ public class DoacaoController extends HttpServlet {
                 break;
 
             case "/inserir":
-                mostrarFormularioNovo(req, resp);
+                mostrarFormularioNovo(
+                        req,
+                        resp
+                );
                 break;
 
             case "/alterar":
-                mostrarFormularioEdicao(req, resp);
+                mostrarFormularioEdicao(
+                        req,
+                        resp
+                );
                 break;
 
             case "/deletar":
@@ -68,7 +76,8 @@ public class DoacaoController extends HttpServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String rota = extrairRota(req);
+        String rota =
+                extrairRota(req);
 
         switch (rota) {
 
@@ -77,7 +86,10 @@ public class DoacaoController extends HttpServlet {
                 break;
 
             case "/alterar":
-                salvarAlteracao(req, resp);
+                salvarAlteracao(
+                        req,
+                        resp
+                );
                 break;
 
             default:
@@ -128,14 +140,11 @@ public class DoacaoController extends HttpServlet {
             HttpServletResponse resp)
             throws ServletException, IOException {
 
-        Doacao doacao =
-                new Doacao();
-
         carregarListas(req);
 
         req.setAttribute(
                 "doacao",
-                doacao
+                new Doacao()
         );
 
         req.setAttribute(
@@ -159,7 +168,8 @@ public class DoacaoController extends HttpServlet {
                 );
 
         Doacao doacao =
-                doacaoService.buscarPorId(id);
+                doacaoService
+                        .buscarPorId(id);
 
         carregarListas(req);
 
@@ -181,128 +191,95 @@ public class DoacaoController extends HttpServlet {
     private void salvarNovo(
             HttpServletRequest req,
             HttpServletResponse resp)
-            throws IOException {
-
-        Long doadorId =
-                Long.parseLong(
-                        req.getParameter("doadorId")
-                );
-
-        Long instituicaoId =
-                Long.parseLong(
-                        req.getParameter("instituicaoId")
-                );
-
-        String descricao =
-                req.getParameter("descricao");
-
-        LocalDate dataDoacao =
-                LocalDate.parse(
-                        req.getParameter("dataDoacao")
-                );
-
-        Doador doador =
-                doadorService.buscarPorId(doadorId);
-
-        Instituicao instituicao =
-                instituicaoService.buscarPorId(
-                        instituicaoId
-                );
+            throws ServletException, IOException {
 
         Doacao doacao =
-                new Doacao();
+                montarDoacao(req);
 
-        doacao.setDoador(doador);
+        try {
 
-        doacao.setInstituicao(
-                instituicao
-        );
+            doacaoService.inserir(
+                    doacao
+            );
 
-        doacao.setDescricao(
-                descricao
-        );
+            resp.sendRedirect(
+                    req.getContextPath()
+                            + "/doacao/listar"
+            );
 
-        doacao.setDataDoacao(
-                dataDoacao
-        );
+        } catch (IllegalArgumentException e) {
 
-        doacaoService.inserir(
-                doacao
-        );
+            carregarListas(req);
 
-        resp.sendRedirect(
-                req.getContextPath()
-                        + "/doacao/listar"
-        );
+            req.setAttribute(
+                    "erro",
+                    e.getMessage()
+            );
+
+            req.setAttribute(
+                    "doacao",
+                    doacao
+            );
+
+            req.setAttribute(
+                    "ehEdicao",
+                    false
+            );
+
+            req.getRequestDispatcher(
+                    "/WEB-INF/doacao/form.jsp"
+            ).forward(req, resp);
+        }
     }
 
     private void salvarAlteracao(
             HttpServletRequest req,
             HttpServletResponse resp)
-            throws IOException {
-
-        Long id =
-                Long.parseLong(
-                        req.getParameter("id")
-                );
-
-        Long doadorId =
-                Long.parseLong(
-                        req.getParameter("doadorId")
-                );
-
-        Long instituicaoId =
-                Long.parseLong(
-                        req.getParameter("instituicaoId")
-                );
-
-        String descricao =
-                req.getParameter("descricao");
-
-        LocalDate dataDoacao =
-                LocalDate.parse(
-                        req.getParameter("dataDoacao")
-                );
-
-        Doador doador =
-                doadorService.buscarPorId(
-                        doadorId
-                );
-
-        Instituicao instituicao =
-                instituicaoService.buscarPorId(
-                        instituicaoId
-                );
+            throws ServletException, IOException {
 
         Doacao doacao =
-                new Doacao();
+                montarDoacao(req);
 
-        doacao.setId(id);
-
-        doacao.setDoador(
-                doador
+        doacao.setId(
+                Long.parseLong(
+                        req.getParameter("id")
+                )
         );
 
-        doacao.setInstituicao(
-                instituicao
-        );
+        try {
 
-        doacao.setDescricao(
-                descricao
-        );
+            doacaoService.alterar(
+                    doacao
+            );
 
-        doacao.setDataDoacao(
-                dataDoacao
-        );
+            resp.sendRedirect(
+                    req.getContextPath()
+                            + "/doacao/listar"
+            );
 
-        doacaoService.alterar(
-                doacao
-        );
+        } catch (IllegalArgumentException e) {
 
-        resp.sendRedirect(
-                req.getContextPath()
-                        + "/doacao/listar"
-        );
+            carregarListas(req);
+
+            req.setAttribute(
+                    "erro",
+                    e.getMessage()
+            );
+
+            req.setAttribute(
+                    "doacao",
+                    doacao
+            );
+
+            req.setAttribute(
+                    "ehEdicao",
+                    true
+            );
+
+            req.getRequestDispatcher(
+                    "/WEB-INF/doacao/form.jsp"
+            ).forward(req, resp);
+        }
     }
 
     private void deletar(
@@ -323,23 +300,62 @@ public class DoacaoController extends HttpServlet {
         );
     }
 
+    private Doacao montarDoacao(
+            HttpServletRequest req) {
+
+        Long doadorId =
+                Long.parseLong(
+                        req.getParameter("doadorId")
+                );
+
+        Long instituicaoId =
+                Long.parseLong(
+                        req.getParameter("instituicaoId")
+                );
+
+        Doador doador =
+                doadorService
+                        .buscarPorId(doadorId);
+
+        Instituicao instituicao =
+                instituicaoService
+                        .buscarPorId(instituicaoId);
+
+        Doacao doacao =
+                new Doacao();
+
+        doacao.setDoador(
+                doador
+        );
+
+        doacao.setInstituicao(
+                instituicao
+        );
+
+        doacao.setDescricao(
+                req.getParameter("descricao")
+        );
+
+        doacao.setDataDoacao(
+                LocalDate.parse(
+                        req.getParameter("dataDoacao")
+                )
+        );
+
+        return doacao;
+    }
+
     private void carregarListas(
             HttpServletRequest req) {
 
-        List<Doador> doadores =
-                doadorService.listar();
-
-        List<Instituicao> instituicoes =
-                instituicaoService.listar();
-
         req.setAttribute(
                 "doadores",
-                doadores
+                doadorService.listar()
         );
 
         req.setAttribute(
                 "instituicoes",
-                instituicoes
+                instituicaoService.listar()
         );
     }
 }

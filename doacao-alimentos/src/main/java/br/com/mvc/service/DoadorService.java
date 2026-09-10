@@ -7,22 +7,14 @@ import java.util.List;
 
 public class DoadorService {
 
-    private final DoadorDAO doadorDAO;
-
-    public DoadorService() {
-        this.doadorDAO = new DoadorDAO();
-    }
+    private final DoadorDAO doadorDAO =
+            new DoadorDAO();
 
     public List<Doador> listar() {
         return doadorDAO.listar();
     }
 
     public Doador buscarPorId(Long id) {
-
-        if (id == null) {
-            throw new IllegalArgumentException("Id obrigatório.");
-        }
-
         return doadorDAO.buscarPorId(id);
     }
 
@@ -30,18 +22,66 @@ public class DoadorService {
 
         validar(doador);
 
+        if (doadorDAO.existeCpfCnpj(
+                doador.getCpfCnpj(),
+                null)) {
+
+            throw new IllegalArgumentException(
+                    "CPF/CNPJ já cadastrado."
+            );
+        }
+
+        if (doadorDAO.existeEmail(
+                doador.getEmail(),
+                null)) {
+
+            throw new IllegalArgumentException(
+                    "Email já cadastrado."
+            );
+        }
+
+        if (doadorDAO.existeTelefone(
+                doador.getTelefone(),
+                null)) {
+
+            throw new IllegalArgumentException(
+                    "Telefone já cadastrado."
+            );
+        }
+
         doadorDAO.inserir(doador);
     }
 
     public void alterar(Doador doador) {
 
-        if (doador.getId() == null) {
+        validar(doador);
+
+        if (doadorDAO.existeCpfCnpj(
+                doador.getCpfCnpj(),
+                doador.getId())) {
+
             throw new IllegalArgumentException(
-                    "Id obrigatório para alteração."
+                    "CPF/CNPJ já cadastrado."
             );
         }
 
-        validar(doador);
+        if (doadorDAO.existeEmail(
+                doador.getEmail(),
+                doador.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Email já cadastrado."
+            );
+        }
+
+        if (doadorDAO.existeTelefone(
+                doador.getTelefone(),
+                doador.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Telefone já cadastrado."
+            );
+        }
 
         doadorDAO.alterar(doador);
     }
@@ -62,23 +102,47 @@ public class DoadorService {
 
         if (doador == null) {
             throw new IllegalArgumentException(
-                    "Doador não pode ser nulo."
+                    "Doador obrigatório."
             );
         }
 
-        if (doador.getNome() == null ||
-                doador.getNome().isBlank()) {
+        if (doador.getNome() == null
+                || doador.getNome().isBlank()) {
 
             throw new IllegalArgumentException(
                     "Nome obrigatório."
             );
         }
 
-        if (doador.getEmail() == null ||
-                doador.getEmail().isBlank()) {
+        if (doador.getCpfCnpj() == null
+                || doador.getCpfCnpj().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "CPF/CNPJ obrigatório."
+            );
+        }
+
+        if (doador.getEmail() == null
+                || doador.getEmail().isBlank()) {
 
             throw new IllegalArgumentException(
                     "Email obrigatório."
+            );
+        }
+
+        if (doador.getTelefone() == null
+                || doador.getTelefone().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Telefone obrigatório."
+            );
+        }
+
+        if (doador.getCidade() == null
+                || doador.getCidade().isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Cidade obrigatória."
             );
         }
     }

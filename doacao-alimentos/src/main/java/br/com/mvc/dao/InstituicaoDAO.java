@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,9 @@ public class InstituicaoDAO {
     public void inserir(Instituicao instituicao) {
 
         String sql =
-                "INSERT INTO instituicoes (nome, endereco) VALUES (?, ?)";
+                "INSERT INTO instituicoes "
+                + "(nome, endereco, telefone, email, cidade) "
+                + "VALUES (?, ?, ?, ?, ?)";
 
         try {
 
@@ -30,13 +33,16 @@ public class InstituicaoDAO {
 
             ps.setString(1, instituicao.getNome());
             ps.setString(2, instituicao.getEndereco());
+            ps.setString(3, instituicao.getTelefone());
+            ps.setString(4, instituicao.getEmail());
+            ps.setString(5, instituicao.getCidade());
 
             ps.executeUpdate();
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao inserir instituição",
+                    "Erro ao inserir instituição.",
                     e
             );
         }
@@ -45,7 +51,10 @@ public class InstituicaoDAO {
     public List<Instituicao> listar() {
 
         String sql =
-                "SELECT id, nome, endereco FROM instituicoes";
+                "SELECT id, nome, endereco, telefone, "
+                + "email, cidade, data_cadastro "
+                + "FROM instituicoes "
+                + "ORDER BY nome";
 
         List<Instituicao> lista =
                 new ArrayList<>();
@@ -65,28 +74,15 @@ public class InstituicaoDAO {
 
             while (rs.next()) {
 
-                Instituicao instituicao =
-                        new Instituicao();
-
-                instituicao.setId(
-                        rs.getLong("id")
+                lista.add(
+                        montarInstituicao(rs)
                 );
-
-                instituicao.setNome(
-                        rs.getString("nome")
-                );
-
-                instituicao.setEndereco(
-                        rs.getString("endereco")
-                );
-
-                lista.add(instituicao);
             }
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao listar instituições",
+                    "Erro ao listar instituições.",
                     e
             );
         }
@@ -97,7 +93,10 @@ public class InstituicaoDAO {
     public Instituicao buscarPorId(Long id) {
 
         String sql =
-                "SELECT id, nome, endereco FROM instituicoes WHERE id = ?";
+                "SELECT id, nome, endereco, telefone, "
+                + "email, cidade, data_cadastro "
+                + "FROM instituicoes "
+                + "WHERE id = ?";
 
         try {
 
@@ -116,28 +115,13 @@ public class InstituicaoDAO {
 
             if (rs.next()) {
 
-                Instituicao instituicao =
-                        new Instituicao();
-
-                instituicao.setId(
-                        rs.getLong("id")
-                );
-
-                instituicao.setNome(
-                        rs.getString("nome")
-                );
-
-                instituicao.setEndereco(
-                        rs.getString("endereco")
-                );
-
-                return instituicao;
+                return montarInstituicao(rs);
             }
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao buscar instituição",
+                    "Erro ao buscar instituição.",
                     e
             );
         }
@@ -145,10 +129,17 @@ public class InstituicaoDAO {
         return null;
     }
 
-    public void alterar(Instituicao instituicao) {
+    public void alterar(
+            Instituicao instituicao) {
 
         String sql =
-                "UPDATE instituicoes SET nome = ?, endereco = ? WHERE id = ?";
+                "UPDATE instituicoes SET "
+                + "nome = ?, "
+                + "endereco = ?, "
+                + "telefone = ?, "
+                + "email = ?, "
+                + "cidade = ? "
+                + "WHERE id = ?";
 
         try {
 
@@ -160,16 +151,42 @@ public class InstituicaoDAO {
             PreparedStatement ps =
                     conexao.prepareStatement(sql);
 
-            ps.setString(1, instituicao.getNome());
-            ps.setString(2, instituicao.getEndereco());
-            ps.setLong(3, instituicao.getId());
+            ps.setString(
+                    1,
+                    instituicao.getNome()
+            );
+
+            ps.setString(
+                    2,
+                    instituicao.getEndereco()
+            );
+
+            ps.setString(
+                    3,
+                    instituicao.getTelefone()
+            );
+
+            ps.setString(
+                    4,
+                    instituicao.getEmail()
+            );
+
+            ps.setString(
+                    5,
+                    instituicao.getCidade()
+            );
+
+            ps.setLong(
+                    6,
+                    instituicao.getId()
+            );
 
             ps.executeUpdate();
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao alterar instituição",
+                    "Erro ao alterar instituição.",
                     e
             );
         }
@@ -178,7 +195,8 @@ public class InstituicaoDAO {
     public void deletar(Long id) {
 
         String sql =
-                "DELETE FROM instituicoes WHERE id = ?";
+                "DELETE FROM instituicoes "
+                + "WHERE id = ?";
 
         try {
 
@@ -197,7 +215,7 @@ public class InstituicaoDAO {
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao deletar instituição",
+                    "Erro ao excluir instituição.",
                     e
             );
         }
@@ -206,35 +224,205 @@ public class InstituicaoDAO {
     public boolean possuiDoacoes(Long id) {
 
         String sql =
-                "SELECT COUNT(*) FROM doacoes WHERE instituicao_id = ?";
+                "SELECT COUNT(*) "
+                + "FROM doacoes "
+                + "WHERE instituicao_id = ?";
 
         try {
 
-                Connection conexao =
-                        MysqlSingleton
-                                .getInstancia()
-                                .getConexao();
+            Connection conexao =
+                    MysqlSingleton
+                            .getInstancia()
+                            .getConexao();
 
-                PreparedStatement ps =
-                        conexao.prepareStatement(sql);
+            PreparedStatement ps =
+                    conexao.prepareStatement(sql);
 
-                ps.setLong(1, id);
+            ps.setLong(1, id);
 
-                ResultSet rs =
-                        ps.executeQuery();
+            ResultSet rs =
+                    ps.executeQuery();
 
-                if (rs.next()) {
-                return rs.getInt(1) > 0;
-                }
+            return rs.next()
+                    && rs.getInt(1) > 0;
 
         } catch (SQLException e) {
 
-                throw new RuntimeException(
-                        "Erro ao verificar doações da instituição",
-                        e
+            throw new RuntimeException(
+                    "Erro ao verificar doações da instituição.",
+                    e
+            );
+        }
+    }
+
+    public boolean existeEmail(
+            String email,
+            Long ignorarId) {
+
+        String sql =
+                "SELECT COUNT(*) "
+                + "FROM instituicoes "
+                + "WHERE email = ? "
+                + "AND (? IS NULL OR id <> ?)";
+
+        try {
+
+            Connection conexao =
+                    MysqlSingleton
+                            .getInstancia()
+                            .getConexao();
+
+            PreparedStatement ps =
+                    conexao.prepareStatement(sql);
+
+            ps.setString(1, email);
+
+            if (ignorarId == null) {
+
+                ps.setNull(
+                        2,
+                        Types.BIGINT
                 );
+
+                ps.setNull(
+                        3,
+                        Types.BIGINT
+                );
+
+            } else {
+
+                ps.setLong(
+                        2,
+                        ignorarId
+                );
+
+                ps.setLong(
+                        3,
+                        ignorarId
+                );
+            }
+
+            ResultSet rs =
+                    ps.executeQuery();
+
+            return rs.next()
+                    && rs.getInt(1) > 0;
+
+        } catch (SQLException e) {
+
+            throw new RuntimeException(
+                    "Erro ao verificar email.",
+                    e
+            );
+        }
+    }
+
+    public boolean existeTelefone(
+            String telefone,
+            Long ignorarId) {
+
+        String sql =
+                "SELECT COUNT(*) "
+                + "FROM instituicoes "
+                + "WHERE telefone = ? "
+                + "AND (? IS NULL OR id <> ?)";
+
+        try {
+
+            Connection conexao =
+                    MysqlSingleton
+                            .getInstancia()
+                            .getConexao();
+
+            PreparedStatement ps =
+                    conexao.prepareStatement(sql);
+
+            ps.setString(
+                    1,
+                    telefone
+            );
+
+            if (ignorarId == null) {
+
+                ps.setNull(
+                        2,
+                        Types.BIGINT
+                );
+
+                ps.setNull(
+                        3,
+                        Types.BIGINT
+                );
+
+            } else {
+
+                ps.setLong(
+                        2,
+                        ignorarId
+                );
+
+                ps.setLong(
+                        3,
+                        ignorarId
+                );
+            }
+
+            ResultSet rs =
+                    ps.executeQuery();
+
+            return rs.next()
+                    && rs.getInt(1) > 0;
+
+        } catch (SQLException e) {
+
+            throw new RuntimeException(
+                    "Erro ao verificar telefone.",
+                    e
+            );
+        }
+    }
+
+    private Instituicao montarInstituicao(
+            ResultSet rs)
+            throws SQLException {
+
+        Instituicao instituicao =
+                new Instituicao();
+
+        instituicao.setId(
+                rs.getLong("id")
+        );
+
+        instituicao.setNome(
+                rs.getString("nome")
+        );
+
+        instituicao.setEndereco(
+                rs.getString("endereco")
+        );
+
+        instituicao.setTelefone(
+                rs.getString("telefone")
+        );
+
+        instituicao.setEmail(
+                rs.getString("email")
+        );
+
+        instituicao.setCidade(
+                rs.getString("cidade")
+        );
+
+        if (rs.getTimestamp(
+                "data_cadastro") != null) {
+
+            instituicao.setDataCadastro(
+                    rs.getTimestamp(
+                            "data_cadastro"
+                    ).toLocalDateTime()
+            );
         }
 
-        return false;
-        }
+        return instituicao;
+    }
 }

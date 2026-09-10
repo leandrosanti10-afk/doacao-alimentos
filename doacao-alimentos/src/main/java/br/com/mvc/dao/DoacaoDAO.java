@@ -59,7 +59,7 @@ public class DoacaoDAO {
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao inserir doação",
+                    "Erro ao inserir doação.",
                     e
             );
         }
@@ -72,17 +72,30 @@ public class DoacaoDAO {
                 + "d.id, "
                 + "d.descricao, "
                 + "d.data_doacao, "
+
                 + "doa.id AS doador_id, "
                 + "doa.nome AS doador_nome, "
+                + "doa.cpf_cnpj AS doador_cpf_cnpj, "
                 + "doa.email AS doador_email, "
+                + "doa.telefone AS doador_telefone, "
+                + "doa.cidade AS doador_cidade, "
+
                 + "i.id AS instituicao_id, "
                 + "i.nome AS instituicao_nome, "
-                + "i.endereco AS instituicao_endereco "
+                + "i.endereco AS instituicao_endereco, "
+                + "i.telefone AS instituicao_telefone, "
+                + "i.email AS instituicao_email, "
+                + "i.cidade AS instituicao_cidade "
+
                 + "FROM doacoes d "
+
                 + "JOIN doadores doa "
                 + "ON d.doador_id = doa.id "
+
                 + "JOIN instituicoes i "
-                + "ON d.instituicao_id = i.id";
+                + "ON d.instituicao_id = i.id "
+
+                + "ORDER BY d.data_doacao DESC";
 
         List<Doacao> lista =
                 new ArrayList<>();
@@ -102,65 +115,15 @@ public class DoacaoDAO {
 
             while (rs.next()) {
 
-                Doador doador =
-                        new Doador();
-
-                doador.setId(
-                        rs.getLong("doador_id")
+                lista.add(
+                        montarDoacao(rs)
                 );
-
-                doador.setNome(
-                        rs.getString("doador_nome")
-                );
-
-                doador.setEmail(
-                        rs.getString("doador_email")
-                );
-
-                Instituicao instituicao =
-                        new Instituicao();
-
-                instituicao.setId(
-                        rs.getLong("instituicao_id")
-                );
-
-                instituicao.setNome(
-                        rs.getString("instituicao_nome")
-                );
-
-                instituicao.setEndereco(
-                        rs.getString("instituicao_endereco")
-                );
-
-                Doacao doacao =
-                        new Doacao();
-
-                doacao.setId(
-                        rs.getLong("id")
-                );
-
-                doacao.setDescricao(
-                        rs.getString("descricao")
-                );
-
-                doacao.setDataDoacao(
-                        rs.getDate("data_doacao")
-                                .toLocalDate()
-                );
-
-                doacao.setDoador(doador);
-
-                doacao.setInstituicao(
-                        instituicao
-                );
-
-                lista.add(doacao);
             }
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao listar doações",
+                    "Erro ao listar doações.",
                     e
             );
         }
@@ -175,17 +138,29 @@ public class DoacaoDAO {
                 + "d.id, "
                 + "d.descricao, "
                 + "d.data_doacao, "
+
                 + "doa.id AS doador_id, "
                 + "doa.nome AS doador_nome, "
+                + "doa.cpf_cnpj AS doador_cpf_cnpj, "
                 + "doa.email AS doador_email, "
+                + "doa.telefone AS doador_telefone, "
+                + "doa.cidade AS doador_cidade, "
+
                 + "i.id AS instituicao_id, "
                 + "i.nome AS instituicao_nome, "
-                + "i.endereco AS instituicao_endereco "
+                + "i.endereco AS instituicao_endereco, "
+                + "i.telefone AS instituicao_telefone, "
+                + "i.email AS instituicao_email, "
+                + "i.cidade AS instituicao_cidade "
+
                 + "FROM doacoes d "
+
                 + "JOIN doadores doa "
                 + "ON d.doador_id = doa.id "
+
                 + "JOIN instituicoes i "
                 + "ON d.instituicao_id = i.id "
+
                 + "WHERE d.id = ?";
 
         try {
@@ -205,65 +180,13 @@ public class DoacaoDAO {
 
             if (rs.next()) {
 
-                Doador doador =
-                        new Doador();
-
-                doador.setId(
-                        rs.getLong("doador_id")
-                );
-
-                doador.setNome(
-                        rs.getString("doador_nome")
-                );
-
-                doador.setEmail(
-                        rs.getString("doador_email")
-                );
-
-                Instituicao instituicao =
-                        new Instituicao();
-
-                instituicao.setId(
-                        rs.getLong("instituicao_id")
-                );
-
-                instituicao.setNome(
-                        rs.getString("instituicao_nome")
-                );
-
-                instituicao.setEndereco(
-                        rs.getString("instituicao_endereco")
-                );
-
-                Doacao doacao =
-                        new Doacao();
-
-                doacao.setId(
-                        rs.getLong("id")
-                );
-
-                doacao.setDescricao(
-                        rs.getString("descricao")
-                );
-
-                doacao.setDataDoacao(
-                        rs.getDate("data_doacao")
-                                .toLocalDate()
-                );
-
-                doacao.setDoador(doador);
-
-                doacao.setInstituicao(
-                        instituicao
-                );
-
-                return doacao;
+                return montarDoacao(rs);
             }
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao buscar doação",
+                    "Erro ao buscar doação.",
                     e
             );
         }
@@ -323,7 +246,7 @@ public class DoacaoDAO {
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao alterar doação",
+                    "Erro ao alterar doação.",
                     e
             );
         }
@@ -351,9 +274,92 @@ public class DoacaoDAO {
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao deletar doação",
+                    "Erro ao excluir doação.",
                     e
             );
         }
+    }
+
+    private Doacao montarDoacao(
+            ResultSet rs)
+            throws SQLException {
+
+        Doador doador =
+                new Doador();
+
+        doador.setId(
+                rs.getLong("doador_id")
+        );
+
+        doador.setNome(
+                rs.getString("doador_nome")
+        );
+
+        doador.setCpfCnpj(
+                rs.getString("doador_cpf_cnpj")
+        );
+
+        doador.setEmail(
+                rs.getString("doador_email")
+        );
+
+        doador.setTelefone(
+                rs.getString("doador_telefone")
+        );
+
+        doador.setCidade(
+                rs.getString("doador_cidade")
+        );
+
+        Instituicao instituicao =
+                new Instituicao();
+
+        instituicao.setId(
+                rs.getLong("instituicao_id")
+        );
+
+        instituicao.setNome(
+                rs.getString("instituicao_nome")
+        );
+
+        instituicao.setEndereco(
+                rs.getString("instituicao_endereco")
+        );
+
+        instituicao.setTelefone(
+                rs.getString("instituicao_telefone")
+        );
+
+        instituicao.setEmail(
+                rs.getString("instituicao_email")
+        );
+
+        instituicao.setCidade(
+                rs.getString("instituicao_cidade")
+        );
+
+        Doacao doacao =
+                new Doacao();
+
+        doacao.setId(
+                rs.getLong("id")
+        );
+
+        doacao.setDoador(doador);
+
+        doacao.setInstituicao(
+                instituicao
+        );
+
+        doacao.setDescricao(
+                rs.getString("descricao")
+        );
+
+        doacao.setDataDoacao(
+                rs.getDate("data_doacao")
+                        .toLocalDate()
+        );
+
+        return doacao;
     }
 }

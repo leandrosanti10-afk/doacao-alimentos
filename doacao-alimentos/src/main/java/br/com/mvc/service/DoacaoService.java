@@ -19,22 +19,29 @@ public class DoacaoService {
     }
 
     public void inserir(Doacao doacao) {
+
         validar(doacao);
+
         doacaoDAO.inserir(doacao);
     }
 
     public void alterar(Doacao doacao) {
+
         validar(doacao);
+
         doacaoDAO.alterar(doacao);
     }
 
     public void deletar(Long id) {
+
         doacaoDAO.deletar(id);
     }
 
-    private void validar(Doacao doacao) {
+    private void validar(
+            Doacao doacao) {
 
         if (doacao == null) {
+
             throw new IllegalArgumentException(
                     "Doação obrigatória."
             );

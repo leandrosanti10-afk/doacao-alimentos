@@ -11,45 +11,101 @@ public class InstituicaoService {
             new InstituicaoDAO();
 
     public List<Instituicao> listar() {
+
         return instituicaoDAO.listar();
     }
 
-    public Instituicao buscarPorId(Long id) {
-        return instituicaoDAO.buscarPorId(id);
+    public Instituicao buscarPorId(
+            Long id) {
+
+        return instituicaoDAO
+                .buscarPorId(id);
     }
 
-    public void inserir(Instituicao instituicao) {
+    public void inserir(
+            Instituicao instituicao) {
+
         validar(instituicao);
-        instituicaoDAO.inserir(instituicao);
+
+        if (instituicaoDAO.existeEmail(
+                instituicao.getEmail(),
+                null)) {
+
+            throw new IllegalArgumentException(
+                    "Email já cadastrado."
+            );
+        }
+
+        if (instituicaoDAO.existeTelefone(
+                instituicao.getTelefone(),
+                null)) {
+
+            throw new IllegalArgumentException(
+                    "Telefone já cadastrado."
+            );
+        }
+
+        instituicaoDAO.inserir(
+                instituicao
+        );
     }
 
-    public void alterar(Instituicao instituicao) {
+    public void alterar(
+            Instituicao instituicao) {
+
         validar(instituicao);
-        instituicaoDAO.alterar(instituicao);
+
+        if (instituicaoDAO.existeEmail(
+                instituicao.getEmail(),
+                instituicao.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Email já cadastrado."
+            );
+        }
+
+        if (instituicaoDAO.existeTelefone(
+                instituicao.getTelefone(),
+                instituicao.getId())) {
+
+            throw new IllegalArgumentException(
+                    "Telefone já cadastrado."
+            );
+        }
+
+        instituicaoDAO.alterar(
+                instituicao
+        );
     }
 
     public void deletar(Long id) {
 
-        if (instituicaoDAO.possuiDoacoes(id)) {
+        if (instituicaoDAO
+                .possuiDoacoes(id)) {
 
             throw new IllegalStateException(
-                    "Não é possível excluir esta instituição, pois ela possui doações cadastradas."
+                    "Não é possível excluir esta instituição, "
+                    + "pois ela possui doações cadastradas."
             );
         }
 
         instituicaoDAO.deletar(id);
     }
 
-    private void validar(Instituicao instituicao) {
+    private void validar(
+            Instituicao instituicao) {
 
         if (instituicao == null) {
+
             throw new IllegalArgumentException(
                     "Instituição obrigatória."
             );
         }
 
         if (instituicao.getNome() == null
-                || instituicao.getNome().isBlank()) {
+                || instituicao
+                .getNome()
+                .isBlank()) {
 
             throw new IllegalArgumentException(
                     "Nome obrigatório."
@@ -57,10 +113,42 @@ public class InstituicaoService {
         }
 
         if (instituicao.getEndereco() == null
-                || instituicao.getEndereco().isBlank()) {
+                || instituicao
+                .getEndereco()
+                .isBlank()) {
 
             throw new IllegalArgumentException(
                     "Endereço obrigatório."
+            );
+        }
+
+        if (instituicao.getTelefone() == null
+                || instituicao
+                .getTelefone()
+                .isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Telefone obrigatório."
+            );
+        }
+
+        if (instituicao.getEmail() == null
+                || instituicao
+                .getEmail()
+                .isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Email obrigatório."
+            );
+        }
+
+        if (instituicao.getCidade() == null
+                || instituicao
+                .getCidade()
+                .isBlank()) {
+
+            throw new IllegalArgumentException(
+                    "Cidade obrigatória."
             );
         }
     }

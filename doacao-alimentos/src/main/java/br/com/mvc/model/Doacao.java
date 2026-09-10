@@ -5,13 +5,9 @@ import java.time.LocalDate;
 public class Doacao {
 
     private Long id;
-
     private Doador doador;
-
     private Instituicao instituicao;
-
     private String descricao;
-
     private LocalDate dataDoacao;
 
     public Doacao() {

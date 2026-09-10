@@ -1,16 +1,21 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="br.com.mvc.model.Doador" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <%
     List<Doador> doadores =
             (List<Doador>) request.getAttribute("doadores");
 
-    String ctx = request.getContextPath();
+    String ctx =
+            request.getContextPath();
+
+    String erro =
+            (String) request.getAttribute("erro");
 %>
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Doadores</title>
@@ -21,71 +26,117 @@
     <h1>Lista de Doadores</h1>
 
     <%
-    String erro =
-            (String) request.getAttribute("erro");
+        if (erro != null) {
+    %>
 
-    if (erro != null) {
-%>
+        <p style="color: red;">
+            <%= erro %>
+        </p>
 
-    <p style="color: red;">
-        <%= erro %>
-    </p>
-
-<%
-    }
-%>
+    <%
+        }
+    %>
 
     <a href="<%= ctx %>/doador/inserir">
-        Novo doador
+        Novo Doador
     </a>
 
     <br><br>
 
-    <table border="1">
+    <table border="1" cellpadding="8">
 
-        <tr>
-            <th>ID</th>
-            <th>Nome</th>
-            <th>Email</th>
-            <th>Ações</th>
-        </tr>
+        <thead>
 
-        <%
-            if (doadores != null) {
+            <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>CPF/CNPJ</th>
+                <th>Email</th>
+                <th>Telefone</th>
+                <th>Cidade</th>
+                <th>Data de Cadastro</th>
+                <th>Ações</th>
+            </tr>
 
-                for (Doador d : doadores) {
-        %>
+        </thead>
 
-        <tr>
+        <tbody>
 
-            <td><%= d.getId() %></td>
+            <%
+                if (doadores != null && !doadores.isEmpty()) {
 
-            <td><%= d.getNome() %></td>
+                    for (Doador doador : doadores) {
+            %>
 
-            <td><%= d.getEmail() %></td>
+                <tr>
 
-            <td>
+                    <td>
+                        <%= doador.getId() %>
+                    </td>
 
-                <a href="<%= ctx %>/doador/alterar?id=<%= d.getId() %>">
-                    Editar
-                </a>
+                    <td>
+                        <%= doador.getNome() %>
+                    </td>
 
-                |
+                    <td>
+                        <%= doador.getCpfCnpj() %>
+                    </td>
 
-                <a href="<%= ctx %>/doador/deletar?id=<%= d.getId() %>">
-                    Excluir
-                </a>
+                    <td>
+                        <%= doador.getEmail() %>
+                    </td>
 
-            </td>
+                    <td>
+                        <%= doador.getTelefone() %>
+                    </td>
 
-        </tr>
+                    <td>
+                        <%= doador.getCidade() %>
+                    </td>
 
-        <%
+                    <td>
+                        <%= doador.getDataCadastro() %>
+                    </td>
+
+                    <td>
+
+                        <a href="<%= ctx %>/doador/alterar?id=<%= doador.getId() %>">
+                            Editar
+                        </a>
+
+                        |
+
+                        <a href="<%= ctx %>/doador/deletar?id=<%= doador.getId() %>"
+                           onclick="return confirm('Deseja excluir este doador?')">
+                            Excluir
+                        </a>
+
+                    </td>
+
+                </tr>
+
+            <%
+                    }
+
+                } else {
+            %>
+
+                <tr>
+
+                    <td colspan="8">
+                        Nenhum doador cadastrado.
+                    </td>
+
+                </tr>
+
+            <%
                 }
-            }
-        %>
+            %>
+
+        </tbody>
 
     </table>
 
 </body>
+
 </html>

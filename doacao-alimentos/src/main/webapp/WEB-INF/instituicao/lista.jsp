@@ -4,9 +4,15 @@
 
 <%
     List<Instituicao> instituicoes =
-            (List<Instituicao>) request.getAttribute("instituicoes");
+            (List<Instituicao>)
+                    request.getAttribute("instituicoes");
 
-    String ctx = request.getContextPath();
+    String ctx =
+            request.getContextPath();
+
+    String erro =
+            (String)
+                    request.getAttribute("erro");
 %>
 
 <!DOCTYPE html>
@@ -18,98 +24,122 @@
 
 <body>
 
-    <h1>Lista de Instituições</h1>
+<h1>Lista de Instituições</h1>
 
-    <%
-    String erro =
-            (String) request.getAttribute("erro");
-
+<%
     if (erro != null) {
 %>
 
-    <p style="color: red;">
-        <%= erro %>
-    </p>
+<p style="color: red;">
+    <%= erro %>
+</p>
 
 <%
     }
 %>
 
-    <a href="<%= ctx %>/instituicao/inserir">
-        Nova Instituição
-    </a>
+<a href="<%= ctx %>/instituicao/inserir">
+    Nova Instituição
+</a>
 
-    <br><br>
+<br><br>
 
-    <table border="1" cellpadding="8">
+<table border="1"
+       cellpadding="8">
 
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nome</th>
-                <th>Endereço</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
+    <thead>
 
-        <tbody>
+    <tr>
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Endereço</th>
+        <th>Telefone</th>
+        <th>Email</th>
+        <th>Cidade</th>
+        <th>Data de Cadastro</th>
+        <th>Ações</th>
+    </tr>
 
-        <%
-            if (instituicoes != null && !instituicoes.isEmpty()) {
+    </thead>
 
-                for (Instituicao instituicao : instituicoes) {
-        %>
+    <tbody>
 
-            <tr>
+    <%
+        if (instituicoes != null
+                && !instituicoes.isEmpty()) {
 
-                <td>
-                    <%= instituicao.getId() %>
-                </td>
+            for (Instituicao instituicao
+                    : instituicoes) {
+    %>
 
-                <td>
-                    <%= instituicao.getNome() %>
-                </td>
+    <tr>
 
-                <td>
-                    <%= instituicao.getEndereco() %>
-                </td>
+        <td>
+            <%= instituicao.getId() %>
+        </td>
 
-                <td>
+        <td>
+            <%= instituicao.getNome() %>
+        </td>
 
-                    <a href="<%= ctx %>/instituicao/alterar?id=<%= instituicao.getId() %>">
-                        Editar
-                    </a>
+        <td>
+            <%= instituicao.getEndereco() %>
+        </td>
 
-                    |
+        <td>
+            <%= instituicao.getTelefone() %>
+        </td>
 
-                    <a href="<%= ctx %>/instituicao/deletar?id=<%= instituicao.getId() %>"
-                       onclick="return confirm('Deseja excluir esta instituição?')">
-                        Excluir
-                    </a>
+        <td>
+            <%= instituicao.getEmail() %>
+        </td>
 
-                </td>
+        <td>
+            <%= instituicao.getCidade() %>
+        </td>
 
-            </tr>
+        <td>
+            <%= instituicao.getDataCadastro() %>
+        </td>
 
-        <%
-                }
+        <td>
 
-            } else {
-        %>
+            <a href="<%= ctx %>/instituicao/alterar?id=<%= instituicao.getId() %>">
+                Editar
+            </a>
 
-            <tr>
-                <td colspan="4">
-                    Nenhuma instituição cadastrada.
-                </td>
-            </tr>
+            |
 
-        <%
+            <a href="<%= ctx %>/instituicao/deletar?id=<%= instituicao.getId() %>"
+               onclick="return confirm('Deseja excluir esta instituição?')">
+                Excluir
+            </a>
+
+        </td>
+
+    </tr>
+
+    <%
             }
-        %>
 
-        </tbody>
+        } else {
+    %>
 
-    </table>
+    <tr>
+
+        <td colspan="8">
+            Nenhuma instituição cadastrada.
+        </td>
+
+    </tr>
+
+    <%
+        }
+    %>
+
+    </tbody>
+
+</table>
 
 </body>
 </html>

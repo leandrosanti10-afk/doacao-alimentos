@@ -4,13 +4,16 @@
 
 <%
     List<Doacao> doacoes =
-            (List<Doacao>) request.getAttribute("doacoes");
+            (List<Doacao>)
+                    request.getAttribute("doacoes");
 
-    String ctx = request.getContextPath();
+    String ctx =
+            request.getContextPath();
 %>
 
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <title>Doações</title>
@@ -18,93 +21,102 @@
 
 <body>
 
-    <h1>Lista de Doações</h1>
+<h1>Lista de Doações</h1>
 
-    <a href="<%= ctx %>/doacao/inserir">
-        Nova Doação
-    </a>
+<a href="<%= ctx %>/doacao/inserir">
+    Nova Doação
+</a>
 
-    <br><br>
+<br><br>
 
-    <table border="1" cellpadding="8">
+<table border="1"
+       cellpadding="8">
 
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Doador</th>
-                <th>Instituição</th>
-                <th>Descrição</th>
-                <th>Data</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
+    <thead>
 
-        <tbody>
+    <tr>
+        <th>ID</th>
+        <th>Doador</th>
+        <th>Instituição</th>
+        <th>Descrição</th>
+        <th>Data</th>
+        <th>Ações</th>
+    </tr>
 
-        <%
-            if (doacoes != null && !doacoes.isEmpty()) {
+    </thead>
 
-                for (Doacao doacao : doacoes) {
-        %>
+    <tbody>
 
-            <tr>
+    <%
+        if (doacoes != null
+                && !doacoes.isEmpty()) {
 
-                <td>
-                    <%= doacao.getId() %>
-                </td>
+            for (Doacao doacao : doacoes) {
+    %>
 
-                <td>
-                    <%= doacao.getDoador().getNome() %>
-                </td>
+    <tr>
 
-                <td>
-                    <%= doacao.getInstituicao().getNome() %>
-                </td>
+        <td>
+            <%= doacao.getId() %>
+        </td>
 
-                <td>
-                    <%= doacao.getDescricao() %>
-                </td>
+        <td>
+            <%= doacao.getDoador().getNome() %>
+        </td>
 
-                <td>
-                    <%= doacao.getDataDoacao() %>
-                </td>
+        <td>
+            <%= doacao.getInstituicao().getNome() %>
+        </td>
 
-                <td>
+        <td>
+            <%= doacao.getDescricao() != null
+                    ? doacao.getDescricao()
+                        .replace(", ", "<br>")
+                    : "" %>
+        </td>
 
-                    <a href="<%= ctx %>/doacao/alterar?id=<%= doacao.getId() %>">
-                        Editar
-                    </a>
+        <td>
+            <%= doacao.getDataDoacao() %>
+        </td>
 
-                    |
+        <td>
 
-                    <a href="<%= ctx %>/doacao/deletar?id=<%= doacao.getId() %>"
-                       onclick="return confirm('Deseja excluir esta doação?')">
-                        Excluir
-                    </a>
+            <a href="<%= ctx %>/doacao/alterar?id=<%= doacao.getId() %>">
+                Editar
+            </a>
 
-                </td>
+            |
 
-            </tr>
+            <a href="<%= ctx %>/doacao/deletar?id=<%= doacao.getId() %>"
+               onclick="return confirm('Deseja excluir esta doação?')">
+                Excluir
+            </a>
 
-        <%
-                }
+        </td>
 
-            } else {
-        %>
+    </tr>
 
-            <tr>
-                <td colspan="6">
-                    Nenhuma doação cadastrada.
-                </td>
-            </tr>
-
-        <%
+    <%
             }
-        %>
 
-        </tbody>
+        } else {
+    %>
 
-    </table>
+    <tr>
+
+        <td colspan="6">
+            Nenhuma doação cadastrada.
+        </td>
+
+    </tr>
+
+    <%
+        }
+    %>
+
+    </tbody>
+
+</table>
 
 </body>
 </html>
