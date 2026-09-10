@@ -20,6 +20,21 @@
 
     <h1>Lista de Doadores</h1>
 
+    <%
+    String erro =
+            (String) request.getAttribute("erro");
+
+    if (erro != null) {
+%>
+
+    <p style="color: red;">
+        <%= erro %>
+    </p>
+
+<%
+    }
+%>
+
     <a href="<%= ctx %>/doador/inserir">
         Novo doador
     </a>

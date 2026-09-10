@@ -1,7 +1,7 @@
 package br.com.mvc.dao;
 
 import br.com.mvc.config.MysqlSingleton;
-import br.com.mvc.model.Doador;
+import br.com.mvc.model.Instituicao;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,12 +11,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DoadorDAO {
+public class InstituicaoDAO {
 
-    public void inserir(Doador doador) {
+    public void inserir(Instituicao instituicao) {
 
         String sql =
-                "INSERT INTO doadores (nome, email) VALUES (?, ?)";
+                "INSERT INTO instituicoes (nome, endereco) VALUES (?, ?)";
 
         try {
 
@@ -28,26 +28,26 @@ public class DoadorDAO {
             PreparedStatement ps =
                     conexao.prepareStatement(sql);
 
-            ps.setString(1, doador.getNome());
-            ps.setString(2, doador.getEmail());
+            ps.setString(1, instituicao.getNome());
+            ps.setString(2, instituicao.getEndereco());
 
             ps.executeUpdate();
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao inserir doador",
+                    "Erro ao inserir instituição",
                     e
             );
         }
     }
 
-    public List<Doador> listar() {
+    public List<Instituicao> listar() {
 
         String sql =
-                "SELECT id, nome, email FROM doadores";
+                "SELECT id, nome, endereco FROM instituicoes";
 
-        List<Doador> lista =
+        List<Instituicao> lista =
                 new ArrayList<>();
 
         try {
@@ -65,28 +65,28 @@ public class DoadorDAO {
 
             while (rs.next()) {
 
-                Doador doador =
-                        new Doador();
+                Instituicao instituicao =
+                        new Instituicao();
 
-                doador.setId(
+                instituicao.setId(
                         rs.getLong("id")
                 );
 
-                doador.setNome(
+                instituicao.setNome(
                         rs.getString("nome")
                 );
 
-                doador.setEmail(
-                        rs.getString("email")
+                instituicao.setEndereco(
+                        rs.getString("endereco")
                 );
 
-                lista.add(doador);
+                lista.add(instituicao);
             }
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao listar doadores",
+                    "Erro ao listar instituições",
                     e
             );
         }
@@ -94,10 +94,10 @@ public class DoadorDAO {
         return lista;
     }
 
-    public Doador buscarPorId(Long id) {
+    public Instituicao buscarPorId(Long id) {
 
         String sql =
-                "SELECT id, nome, email FROM doadores WHERE id = ?";
+                "SELECT id, nome, endereco FROM instituicoes WHERE id = ?";
 
         try {
 
@@ -116,28 +116,28 @@ public class DoadorDAO {
 
             if (rs.next()) {
 
-                Doador doador =
-                        new Doador();
+                Instituicao instituicao =
+                        new Instituicao();
 
-                doador.setId(
+                instituicao.setId(
                         rs.getLong("id")
                 );
 
-                doador.setNome(
+                instituicao.setNome(
                         rs.getString("nome")
                 );
 
-                doador.setEmail(
-                        rs.getString("email")
+                instituicao.setEndereco(
+                        rs.getString("endereco")
                 );
 
-                return doador;
+                return instituicao;
             }
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao buscar doador",
+                    "Erro ao buscar instituição",
                     e
             );
         }
@@ -145,10 +145,10 @@ public class DoadorDAO {
         return null;
     }
 
-    public void alterar(Doador doador) {
+    public void alterar(Instituicao instituicao) {
 
         String sql =
-                "UPDATE doadores SET nome = ?, email = ? WHERE id = ?";
+                "UPDATE instituicoes SET nome = ?, endereco = ? WHERE id = ?";
 
         try {
 
@@ -160,16 +160,16 @@ public class DoadorDAO {
             PreparedStatement ps =
                     conexao.prepareStatement(sql);
 
-            ps.setString(1, doador.getNome());
-            ps.setString(2, doador.getEmail());
-            ps.setLong(3, doador.getId());
+            ps.setString(1, instituicao.getNome());
+            ps.setString(2, instituicao.getEndereco());
+            ps.setLong(3, instituicao.getId());
 
             ps.executeUpdate();
 
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao alterar doador",
+                    "Erro ao alterar instituição",
                     e
             );
         }
@@ -178,7 +178,7 @@ public class DoadorDAO {
     public void deletar(Long id) {
 
         String sql =
-                "DELETE FROM doadores WHERE id = ?";
+                "DELETE FROM instituicoes WHERE id = ?";
 
         try {
 
@@ -197,7 +197,7 @@ public class DoadorDAO {
         } catch (SQLException e) {
 
             throw new RuntimeException(
-                    "Erro ao deletar doador",
+                    "Erro ao deletar instituição",
                     e
             );
         }
@@ -206,7 +206,7 @@ public class DoadorDAO {
     public boolean possuiDoacoes(Long id) {
 
         String sql =
-                "SELECT COUNT(*) FROM doacoes WHERE doador_id = ?";
+                "SELECT COUNT(*) FROM doacoes WHERE instituicao_id = ?";
 
         try {
 
@@ -230,7 +230,7 @@ public class DoadorDAO {
         } catch (SQLException e) {
 
                 throw new RuntimeException(
-                        "Erro ao verificar doações do doador",
+                        "Erro ao verificar doações da instituição",
                         e
                 );
         }

@@ -48,9 +48,10 @@ public class DoadorService {
 
     public void deletar(Long id) {
 
-        if (id == null) {
-            throw new IllegalArgumentException(
-                    "Id obrigatório."
+        if (doadorDAO.possuiDoacoes(id)) {
+
+            throw new IllegalStateException(
+                    "Não é possível excluir este doador, pois ele possui doações cadastradas."
             );
         }
 

@@ -12,22 +12,22 @@ public class MysqlSingleton {
     private static final String USER = "root";
 
     private static final String PASSWORD =
-            "root1895";
+            System.getenv("DB_PASSWORD");
 
     private static MysqlSingleton instancia;
 
     private Connection conexao;
 
     private MysqlSingleton() {
-    try {
-        Class.forName("com.mysql.cj.jdbc.Driver");
-    } catch (ClassNotFoundException e) {
-        throw new RuntimeException(
-            "Driver MySQL não encontrado.",
-            e
-        );
+        try {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(
+                    "Driver MySQL não encontrado.",
+                    e
+            );
+        }
     }
-}
 
     public static MysqlSingleton getInstancia() {
 
@@ -38,7 +38,14 @@ public class MysqlSingleton {
         return instancia;
     }
 
-    public Connection getConexao() throws SQLException {
+    public Connection getConexao()
+            throws SQLException {
+
+        if (PASSWORD == null || PASSWORD.isBlank()) {
+            throw new SQLException(
+                    "Variável de ambiente DB_PASSWORD não configurada."
+            );
+        }
 
         if (conexao == null || conexao.isClosed()) {
 

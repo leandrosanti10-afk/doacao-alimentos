@@ -215,20 +215,32 @@ protected void doGet(
     }
 
     private void deletar(
-            HttpServletRequest req,
-            HttpServletResponse resp)
-            throws IOException {
+                HttpServletRequest req,
+                HttpServletResponse resp)
+                throws ServletException, IOException {
 
         Long id =
                 Long.parseLong(
                         req.getParameter("id")
                 );
 
-        doadorService.deletar(id);
+        try {
 
-        resp.sendRedirect(
-                req.getContextPath()
-                + "/doador/listar"
-        );
-    }
+                doadorService.deletar(id);
+
+                resp.sendRedirect(
+                        req.getContextPath()
+                                + "/doador/listar"
+                );
+
+        } catch (IllegalStateException e) {
+
+                req.setAttribute(
+                        "erro",
+                        e.getMessage()
+                );
+
+                listar(req, resp);
+        }
+        }
 }
