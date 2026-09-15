@@ -264,3 +264,143 @@ footer {
 
     font-size: 14px;
 }
+
+/* =========================
+   PÁGINAS INTERNAS (listas e formulários)
+   ========================= */
+
+main .container {
+    padding: 50px 0 70px;
+}
+
+.pagina-cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+
+    gap: 16px;
+
+    margin-bottom: 30px;
+}
+
+.pagina-cabecalho h1 {
+    color: #163a2a;
+
+    font-size: 30px;
+}
+
+.botao-secundario {
+    display: inline-block;
+
+    padding: 10px 18px;
+
+    background: #ffffff;
+    color: #16794a;
+
+    border: 1px solid #16794a;
+    border-radius: 8px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    transition: 0.2s;
+}
+
+.botao-secundario:hover {
+    background: #eaf7ef;
+}
+
+/* =========================
+   TABELA
+   ========================= */
+
+.tabela-wrap {
+    background: #ffffff;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    overflow: hidden;
+}
+
+.tabela-dados {
+    width: 100%;
+
+    border-collapse: collapse;
+}
+
+.tabela-dados thead {
+    background: #eaf7ef;
+}
+
+.tabela-dados th {
+    padding: 14px 16px;
+
+    color: #16794a;
+    text-align: left;
+
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+
+.tabela-dados td {
+    padding: 14px 16px;
+
+    border-top: 1px solid #e5e7eb;
+
+    color: #374151;
+    font-size: 14px;
+}
+
+.tabela-dados tbody tr:hover {
+    background: #f5faf7;
+}
+
+.tabela-dados .acoes a {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.tabela-dados .link-editar {
+    color: #16794a;
+}
+
+.tabela-dados .link-excluir {
+    color: #b3261e;
+}
+
+.tabela-dados .link-editar:hover,
+.tabela-dados .link-excluir:hover {
+    text-decoration: underline;
+}
+
+.tabela-dados .separador {
+    margin: 0 6px;
+
+    color: #cbd2d9;
+}
+
+.tabela-vazia {
+    padding: 48px 16px;
+
+    color: #667085;
+    text-align: center;
+}
+
+.link-voltar {
+    display: inline-block;
+
+    margin-top: 22px;
+
+    color: #16794a;
+
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.link-voltar:hover {
+    text-decoration: underline;
+}
