@@ -8,13 +8,18 @@
 <html lang="pt-br">
 
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>DoaFácil</title>
 
-    <link rel="stylesheet"
-          href="<%= ctx %>/assets/css/style.css">
+    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=3">
+
 </head>
 
 <body>
@@ -24,8 +29,25 @@
         <div class="container topo-conteudo">
 
             <div class="logo">
-                <h2>DoaFácil</h2>
-                <span>Plataforma de Doações de Alimentos</span>
+
+                <img
+                    src="<%= ctx %>/assets/img/DoaFacil.png"
+                    alt="Logo DoaFácil"
+                    class="logo-img"
+                >
+
+                <div class="logo-texto">
+
+                    <h2>
+                        DoaFácil
+                    </h2>
+
+                    <span>
+                        Plataforma de Doações de Alimentos
+                    </span>
+
+                </div>
+
             </div>
 
             <nav class="menu">
@@ -57,7 +79,7 @@
         <section class="hero">
 
             <div class="container">
-                
+
                 <h1>
                     Conectando quem pode doar
                     com quem precisa receber.
@@ -68,11 +90,11 @@
                     a instituições e facilitar a doação de alimentos.
                 </p>
 
-                <a class="botao-principal"
-                   href="<%= ctx %>/doacao/inserir">
-
+                <a
+                    class="botao-principal"
+                    href="<%= ctx %>/doacao/inserir"
+                >
                     Nova Doação
-
                 </a>
 
             </div>
@@ -87,8 +109,10 @@
 
             <div class="cards">
 
-                <a class="card"
-                   href="<%= ctx %>/doador/listar">
+                <a
+                    class="card"
+                    href="<%= ctx %>/doador/listar"
+                >
 
                     <div class="card-icone">
                         👤
@@ -109,8 +133,10 @@
 
                 </a>
 
-                <a class="card"
-                   href="<%= ctx %>/instituicao/listar">
+                <a
+                    class="card"
+                    href="<%= ctx %>/instituicao/listar"
+                >
 
                     <div class="card-icone">
                         🏠
@@ -131,8 +157,10 @@
 
                 </a>
 
-                <a class="card"
-                   href="<%= ctx %>/doacao/listar">
+                <a
+                    class="card"
+                    href="<%= ctx %>/doacao/listar"
+                >
 
                     <div class="card-icone">
                         📦
@@ -160,12 +188,16 @@
     </main>
 
     <footer>
+
         <div class="container">
+
             DoaFácil — Plataforma de Doações de Alimentos
+
         </div>
+
     </footer>
 
-    <script src="<%= ctx %>/assets/js/script.js"></script>
+    <script src="<%= ctx %>/assets/js/script.js?v=2"></script>
 
 </body>
 
