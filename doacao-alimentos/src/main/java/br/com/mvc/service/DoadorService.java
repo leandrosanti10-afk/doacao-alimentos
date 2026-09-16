@@ -4,6 +4,9 @@ import br.com.mvc.dao.DoadorDAO;
 import br.com.mvc.model.Doador;
 
 import java.util.List;
+import br.com.mvc.util.FormatadorTelefone;
+import br.com.mvc.util.FormatadorTexto;
+import br.com.mvc.util.FormatadorCpfCnpj;
 
 public class DoadorService {
 
@@ -21,6 +24,30 @@ public class DoadorService {
     public void inserir(Doador doador) {
 
         validar(doador);
+
+        doador.setNome(
+                FormatadorTexto.capitalizar(
+                        doador.getNome()
+                )
+        );
+
+        doador.setCidade(
+                FormatadorTexto.capitalizar(
+                        doador.getCidade()
+                )
+        );
+
+        doador.setCpfCnpj(
+                FormatadorCpfCnpj.formatar(
+                        doador.getCpfCnpj()
+                )
+        );
+
+        doador.setTelefone(
+                FormatadorTelefone.formatar(
+                        doador.getTelefone()
+                )
+        );
 
         if (doadorDAO.existeCpfCnpj(
                 doador.getCpfCnpj(),
@@ -55,6 +82,30 @@ public class DoadorService {
     public void alterar(Doador doador) {
 
         validar(doador);
+
+        doador.setNome(
+                FormatadorTexto.capitalizar(
+                        doador.getNome()
+                )
+        );
+
+        doador.setCidade(
+                FormatadorTexto.capitalizar(
+                        doador.getCidade()
+                )
+        );
+
+        doador.setCpfCnpj(
+                FormatadorCpfCnpj.formatar(
+                        doador.getCpfCnpj()
+                )
+        );
+
+        doador.setTelefone(
+                FormatadorTelefone.formatar(
+                        doador.getTelefone()
+                )
+        );
 
         if (doadorDAO.existeCpfCnpj(
                 doador.getCpfCnpj(),

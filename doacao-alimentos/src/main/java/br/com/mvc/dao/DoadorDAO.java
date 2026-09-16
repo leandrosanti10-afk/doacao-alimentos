@@ -49,7 +49,7 @@ public class DoadorDAO {
 
         String sql =
                 "SELECT id, nome, cpf_cnpj, email, telefone, cidade, data_cadastro "
-                + "FROM doadores ORDER BY nome";
+                + "FROM doadores ORDER BY data_cadastro DESC, id DESC";
 
         List<Doador> lista =
                 new ArrayList<>();

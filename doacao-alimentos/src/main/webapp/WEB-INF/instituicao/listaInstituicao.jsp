@@ -1,6 +1,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="br.com.mvc.model.Instituicao" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
     List<Instituicao> instituicoes =
@@ -13,6 +14,9 @@
     String erro =
             (String)
                     request.getAttribute("erro");
+    
+    DateTimeFormatter formatoData =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 %>
 
 <!DOCTYPE html>
@@ -29,7 +33,7 @@
 
     <title>Instituições — DoaFácil</title>
 
-    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=6">
 
 </head>
 
@@ -172,7 +176,9 @@
                         </td>
 
                         <td>
-                            <%= instituicao.getDataCadastro() %>
+                            <%= instituicao.getDataCadastro() != null
+                                    ? instituicao.getDataCadastro().format(formatoData)
+                                    : "" %>
                         </td>
 
                         <td class="acoes">

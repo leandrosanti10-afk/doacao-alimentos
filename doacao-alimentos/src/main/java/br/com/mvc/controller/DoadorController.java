@@ -15,301 +15,178 @@ import java.util.List;
 @WebServlet("/doador/*")
 public class DoadorController extends HttpServlet {
 
-    private final DoadorService doadorService =
-            new DoadorService();
+    private final DoadorService doadorService = new DoadorService();
 
     @Override
-protected void doGet(
-        HttpServletRequest req,
-        HttpServletResponse resp)
-        throws ServletException, IOException {
-
-    String rota = extrairRota(req);
-
-    switch (rota) {
-
-        case "/listar":
-            listar(req, resp);
-            break;
-
-        case "/inserir":
-            mostrarFormularioNovo(req, resp);
-            break;
-
-        case "/alterar":
-            mostrarFormularioEdicao(req, resp);
-            break;
-
-        case "/deletar":
-            deletar(req, resp);
-            break;
-
-        default:
-            listar(req, resp);
-            break;
-    }
-}
-
-    @Override
-    protected void doPost(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         String rota = extrairRota(req);
 
         switch (rota) {
+            case "/listar":
+                listar(req, resp);
+                break;
+            case "/inserir":
+                mostrarFormularioNovo(req, resp);
+                break;
+            case "/alterar":
+                mostrarFormularioEdicao(req, resp);
+                break;
+            case "/deletar":
+                deletar(req, resp);
+                break;
+            default:
+                listar(req, resp);
+                break;
+        }
+    }
 
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        String rota = extrairRota(req);
+
+        switch (rota) {
             case "/inserir":
                 salvarNovo(req, resp);
                 break;
-
             case "/alterar":
                 salvarAlteracao(req, resp);
                 break;
-
             default:
-                resp.sendRedirect(
-                        req.getContextPath()
-                        + "/doador/listar"
-                );
+                resp.sendRedirect(req.getContextPath() + "/doador/listar");
                 break;
         }
     }
 
     private String extrairRota(HttpServletRequest req) {
 
-    String pathInfo = req.getPathInfo();
+        String pathInfo = req.getPathInfo();
 
-    if (pathInfo == null
-            || pathInfo.isBlank()
-            || "/".equals(pathInfo)) {
+        if (pathInfo == null
+                || pathInfo.isBlank()
+                || "/".equals(pathInfo)) {
+            return "/listar";
+        }
 
-        return "/listar";
+        return pathInfo;
     }
 
-    return pathInfo;
-}
-
-    private void listar(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void listar(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        List<Doador> doadores =
-                doadorService.listar();
-
-        req.setAttribute(
-                "doadores",
-                doadores
-        );
+        List<Doador> doadores = doadorService.listar();
+        req.setAttribute("doadores", doadores);
 
         req.getRequestDispatcher(
-        "/WEB-INF/doador/lista.jsp"
-).forward(req, resp);
+                "/WEB-INF/doador/listaDoador.jsp"
+        ).forward(req, resp);
     }
 
-    private void mostrarFormularioNovo(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void mostrarFormularioNovo(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        req.setAttribute(
-                "doador",
-                new Doador()
-        );
-
-        req.setAttribute(
-                "ehEdicao",
-                false
-        );
+        req.setAttribute("doador", new Doador());
+        req.setAttribute("ehEdicao", false);
 
         req.getRequestDispatcher(
-        "/WEB-INF/doador/form.jsp"
-).forward(req, resp);
+                "/WEB-INF/doador/formDoador.jsp"
+        ).forward(req, resp);
     }
 
-    private void mostrarFormularioEdicao(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void mostrarFormularioEdicao(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String idParam =
-                req.getParameter("id");
+        Long id = Long.parseLong(req.getParameter("id"));
+        Doador doador = doadorService.buscarPorId(id);
 
-        Long id =
-                Long.parseLong(idParam);
-
-        Doador doador =
-                doadorService.buscarPorId(id);
-
-        req.setAttribute(
-                "doador",
-                doador
-        );
-
-        req.setAttribute(
-                "ehEdicao",
-                true
-        );
+        req.setAttribute("doador", doador);
+        req.setAttribute("ehEdicao", true);
 
         req.getRequestDispatcher(
-        "/WEB-INF/doador/form.jsp"
-).forward(req, resp);
+                "/WEB-INF/doador/formDoador.jsp"
+        ).forward(req, resp);
     }
 
-    private void salvarNovo(
-                HttpServletRequest req,
-                HttpServletResponse resp)
-                throws ServletException, IOException {
+    private void salvarNovo(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
         Doador doador = new Doador();
 
-        doador.setNome(
-                req.getParameter("nome")
-        );
-
-        doador.setCpfCnpj(
-                req.getParameter("cpfCnpj")
-        );
-
-        doador.setEmail(
-                req.getParameter("email")
-        );
-
-        doador.setTelefone(
-                req.getParameter("telefone")
-        );
-
-        doador.setCidade(
-                req.getParameter("cidade")
-        );
+        doador.setNome(req.getParameter("nome"));
+        doador.setCpfCnpj(req.getParameter("cpfCnpj"));
+        doador.setEmail(req.getParameter("email"));
+        doador.setTelefone(req.getParameter("telefone"));
+        doador.setCidade(req.getParameter("cidade"));
 
         try {
+            doadorService.inserir(doador);
 
-                doadorService.inserir(doador);
-
-                resp.sendRedirect(
-                        req.getContextPath()
-                                + "/doador/listar"
-                );
+            resp.sendRedirect(
+                    req.getContextPath() + "/doador/listar"
+            );
 
         } catch (IllegalArgumentException e) {
 
-                req.setAttribute(
-                        "erro",
-                        e.getMessage()
-                );
+            req.setAttribute("erro", e.getMessage());
+            req.setAttribute("doador", doador);
+            req.setAttribute("ehEdicao", false);
 
-                req.setAttribute(
-                        "doador",
-                        doador
-                );
-
-                req.setAttribute(
-                        "ehEdicao",
-                        false
-                );
-
-                req.getRequestDispatcher(
-                        "/WEB-INF/doador/form.jsp"
-                ).forward(req, resp);
+            req.getRequestDispatcher(
+                    "/WEB-INF/doador/formDoador.jsp"
+            ).forward(req, resp);
         }
-        }
+    }
 
-    private void salvarAlteracao(
-                HttpServletRequest req,
-                HttpServletResponse resp)
-                throws ServletException, IOException {
+    private void salvarAlteracao(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-        Doador doador =
-                new Doador();
+        Doador doador = new Doador();
 
-        doador.setId(
-                Long.parseLong(
-                        req.getParameter("id")
-                )
-        );
-
-        doador.setNome(
-                req.getParameter("nome")
-        );
-
-        doador.setCpfCnpj(
-                req.getParameter("cpfCnpj")
-        );
-
-        doador.setEmail(
-                req.getParameter("email")
-        );
-
-        doador.setTelefone(
-                req.getParameter("telefone")
-        );
-
-        doador.setCidade(
-                req.getParameter("cidade")
-        );
+        doador.setId(Long.parseLong(req.getParameter("id")));
+        doador.setNome(req.getParameter("nome"));
+        doador.setCpfCnpj(req.getParameter("cpfCnpj"));
+        doador.setEmail(req.getParameter("email"));
+        doador.setTelefone(req.getParameter("telefone"));
+        doador.setCidade(req.getParameter("cidade"));
 
         try {
+            doadorService.alterar(doador);
 
-                doadorService.alterar(doador);
-
-                resp.sendRedirect(
-                        req.getContextPath()
-                                + "/doador/listar"
-                );
+            resp.sendRedirect(
+                    req.getContextPath() + "/doador/listar"
+            );
 
         } catch (IllegalArgumentException e) {
 
-                req.setAttribute(
-                        "erro",
-                        e.getMessage()
-                );
+            req.setAttribute("erro", e.getMessage());
+            req.setAttribute("doador", doador);
+            req.setAttribute("ehEdicao", true);
 
-                req.setAttribute(
-                        "doador",
-                        doador
-                );
-
-                req.setAttribute(
-                        "ehEdicao",
-                        true
-                );
-
-                req.getRequestDispatcher(
-                        "/WEB-INF/doador/form.jsp"
-                ).forward(req, resp);
+            req.getRequestDispatcher(
+                    "/WEB-INF/doador/formDoador.jsp"
+            ).forward(req, resp);
         }
-        }
+    }
 
-    private void deletar(
-                HttpServletRequest req,
-                HttpServletResponse resp)
-                throws ServletException, IOException {
+    private void deletar(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
 
-        Long id =
-                Long.parseLong(
-                        req.getParameter("id")
-                );
+        Long id = Long.parseLong(req.getParameter("id"));
 
         try {
+            doadorService.deletar(id);
 
-                doadorService.deletar(id);
-
-                resp.sendRedirect(
-                        req.getContextPath()
-                                + "/doador/listar"
-                );
+            resp.sendRedirect(
+                    req.getContextPath() + "/doador/listar"
+            );
 
         } catch (IllegalStateException e) {
 
-                req.setAttribute(
-                        "erro",
-                        e.getMessage()
-                );
-
-                listar(req, resp);
+            req.setAttribute("erro", e.getMessage());
+            listar(req, resp);
         }
-        }
+    }
 }

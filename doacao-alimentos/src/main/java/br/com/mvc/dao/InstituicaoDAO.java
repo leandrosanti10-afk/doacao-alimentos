@@ -54,7 +54,7 @@ public class InstituicaoDAO {
                 "SELECT id, nome, endereco, telefone, "
                 + "email, cidade, data_cadastro "
                 + "FROM instituicoes "
-                + "ORDER BY nome";
+                + "ORDER BY data_cadastro DESC, id DESC";
 
         List<Instituicao> lista =
                 new ArrayList<>();

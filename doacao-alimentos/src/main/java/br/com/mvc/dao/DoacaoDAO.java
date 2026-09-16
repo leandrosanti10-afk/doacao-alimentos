@@ -95,7 +95,7 @@ public class DoacaoDAO {
                 + "JOIN instituicoes i "
                 + "ON d.instituicao_id = i.id "
 
-                + "ORDER BY d.data_doacao DESC";
+                + "ORDER BY d.data_doacao DESC, d.id DESC";
 
         List<Doacao> lista =
                 new ArrayList<>();

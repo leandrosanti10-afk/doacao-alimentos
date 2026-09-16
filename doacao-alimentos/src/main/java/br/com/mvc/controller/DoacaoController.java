@@ -19,8 +19,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @WebServlet("/doacao/*")
-public class DoacaoController
-        extends HttpServlet {
+public class DoacaoController extends HttpServlet {
 
     private final DoacaoService doacaoService =
             new DoacaoService();
@@ -32,38 +31,24 @@ public class DoacaoController
             new InstituicaoService();
 
     @Override
-    protected void doGet(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String rota =
-                extrairRota(req);
+        String rota = extrairRota(req);
 
         switch (rota) {
-
             case "/listar":
                 listar(req, resp);
                 break;
-
             case "/inserir":
-                mostrarFormularioNovo(
-                        req,
-                        resp
-                );
+                mostrarFormularioNovo(req, resp);
                 break;
-
             case "/alterar":
-                mostrarFormularioEdicao(
-                        req,
-                        resp
-                );
+                mostrarFormularioEdicao(req, resp);
                 break;
-
             case "/deletar":
                 deletar(req, resp);
                 break;
-
             default:
                 listar(req, resp);
                 break;
@@ -71,271 +56,177 @@ public class DoacaoController
     }
 
     @Override
-    protected void doPost(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String rota =
-                extrairRota(req);
+        String rota = extrairRota(req);
 
         switch (rota) {
-
             case "/inserir":
                 salvarNovo(req, resp);
                 break;
-
             case "/alterar":
-                salvarAlteracao(
-                        req,
-                        resp
-                );
+                salvarAlteracao(req, resp);
                 break;
-
             default:
                 resp.sendRedirect(
-                        req.getContextPath()
-                                + "/doacao/listar"
+                        req.getContextPath() + "/doacao/listar"
                 );
                 break;
         }
     }
 
-    private String extrairRota(
-            HttpServletRequest req) {
+    private String extrairRota(HttpServletRequest req) {
 
-        String pathInfo =
-                req.getPathInfo();
+        String pathInfo = req.getPathInfo();
 
         if (pathInfo == null
                 || pathInfo.isBlank()
                 || "/".equals(pathInfo)) {
-
             return "/listar";
         }
 
         return pathInfo;
     }
 
-    private void listar(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void listar(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         List<Doacao> doacoes =
                 doacaoService.listar();
 
-        req.setAttribute(
-                "doacoes",
-                doacoes
-        );
+        req.setAttribute("doacoes", doacoes);
 
         req.getRequestDispatcher(
-                "/WEB-INF/doacao/lista.jsp"
+                "/WEB-INF/doacao/listaDoacao.jsp"
         ).forward(req, resp);
     }
 
-    private void mostrarFormularioNovo(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void mostrarFormularioNovo(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
         carregarListas(req);
 
-        req.setAttribute(
-                "doacao",
-                new Doacao()
-        );
-
-        req.setAttribute(
-                "ehEdicao",
-                false
-        );
+        req.setAttribute("doacao", new Doacao());
+        req.setAttribute("ehEdicao", false);
 
         req.getRequestDispatcher(
-                "/WEB-INF/doacao/form.jsp"
+                "/WEB-INF/doacao/formDoacao.jsp"
         ).forward(req, resp);
     }
 
-    private void mostrarFormularioEdicao(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void mostrarFormularioEdicao(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        Long id =
-                Long.parseLong(
-                        req.getParameter("id")
-                );
+        Long id = Long.parseLong(req.getParameter("id"));
 
         Doacao doacao =
-                doacaoService
-                        .buscarPorId(id);
+                doacaoService.buscarPorId(id);
 
         carregarListas(req);
 
-        req.setAttribute(
-                "doacao",
-                doacao
-        );
-
-        req.setAttribute(
-                "ehEdicao",
-                true
-        );
+        req.setAttribute("doacao", doacao);
+        req.setAttribute("ehEdicao", true);
 
         req.getRequestDispatcher(
-                "/WEB-INF/doacao/form.jsp"
+                "/WEB-INF/doacao/formDoacao.jsp"
         ).forward(req, resp);
     }
 
-    private void salvarNovo(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void salvarNovo(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        Doacao doacao =
-                montarDoacao(req);
+        Doacao doacao = montarDoacao(req);
 
         try {
-
-            doacaoService.inserir(
-                    doacao
-            );
+            doacaoService.inserir(doacao);
 
             resp.sendRedirect(
-                    req.getContextPath()
-                            + "/doacao/listar"
+                    req.getContextPath() + "/doacao/listar"
             );
 
         } catch (IllegalArgumentException e) {
 
             carregarListas(req);
 
-            req.setAttribute(
-                    "erro",
-                    e.getMessage()
-            );
-
-            req.setAttribute(
-                    "doacao",
-                    doacao
-            );
-
-            req.setAttribute(
-                    "ehEdicao",
-                    false
-            );
+            req.setAttribute("erro", e.getMessage());
+            req.setAttribute("doacao", doacao);
+            req.setAttribute("ehEdicao", false);
 
             req.getRequestDispatcher(
-                    "/WEB-INF/doacao/form.jsp"
+                    "/WEB-INF/doacao/formDoacao.jsp"
             ).forward(req, resp);
         }
     }
 
-    private void salvarAlteracao(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void salvarAlteracao(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        Doacao doacao =
-                montarDoacao(req);
+        Doacao doacao = montarDoacao(req);
 
         doacao.setId(
-                Long.parseLong(
-                        req.getParameter("id")
-                )
+                Long.parseLong(req.getParameter("id"))
         );
 
         try {
-
-            doacaoService.alterar(
-                    doacao
-            );
+            doacaoService.alterar(doacao);
 
             resp.sendRedirect(
-                    req.getContextPath()
-                            + "/doacao/listar"
+                    req.getContextPath() + "/doacao/listar"
             );
 
         } catch (IllegalArgumentException e) {
 
             carregarListas(req);
 
-            req.setAttribute(
-                    "erro",
-                    e.getMessage()
-            );
-
-            req.setAttribute(
-                    "doacao",
-                    doacao
-            );
-
-            req.setAttribute(
-                    "ehEdicao",
-                    true
-            );
+            req.setAttribute("erro", e.getMessage());
+            req.setAttribute("doacao", doacao);
+            req.setAttribute("ehEdicao", true);
 
             req.getRequestDispatcher(
-                    "/WEB-INF/doacao/form.jsp"
+                    "/WEB-INF/doacao/formDoacao.jsp"
             ).forward(req, resp);
         }
     }
 
-    private void deletar(
-            HttpServletRequest req,
-            HttpServletResponse resp)
+    private void deletar(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        Long id =
-                Long.parseLong(
-                        req.getParameter("id")
-                );
+        Long id = Long.parseLong(
+                req.getParameter("id")
+        );
 
         doacaoService.deletar(id);
 
         resp.sendRedirect(
-                req.getContextPath()
-                        + "/doacao/listar"
+                req.getContextPath() + "/doacao/listar"
         );
     }
 
     private Doacao montarDoacao(
             HttpServletRequest req) {
 
-        Long doadorId =
-                Long.parseLong(
-                        req.getParameter("doadorId")
-                );
+        Long doadorId = Long.parseLong(
+                req.getParameter("doadorId")
+        );
 
-        Long instituicaoId =
-                Long.parseLong(
-                        req.getParameter("instituicaoId")
-                );
+        Long instituicaoId = Long.parseLong(
+                req.getParameter("instituicaoId")
+        );
 
         Doador doador =
-                doadorService
-                        .buscarPorId(doadorId);
+                doadorService.buscarPorId(doadorId);
 
         Instituicao instituicao =
-                instituicaoService
-                        .buscarPorId(instituicaoId);
+                instituicaoService.buscarPorId(instituicaoId);
 
-        Doacao doacao =
-                new Doacao();
+        Doacao doacao = new Doacao();
 
-        doacao.setDoador(
-                doador
-        );
-
-        doacao.setInstituicao(
-                instituicao
-        );
-
+        doacao.setDoador(doador);
+        doacao.setInstituicao(instituicao);
         doacao.setDescricao(
                 req.getParameter("descricao")
         );
-
         doacao.setDataDoacao(
                 LocalDate.parse(
                         req.getParameter("dataDoacao")

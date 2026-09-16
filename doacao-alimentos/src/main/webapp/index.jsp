@@ -18,7 +18,7 @@
 
     <title>DoaFácil</title>
 
-    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=6">
 
 </head>
 
@@ -56,15 +56,15 @@
                     Início
                 </a>
 
-                <a href="<%= ctx %>/doador/listar">
+                <a href="<%= ctx %>/doador/listaDoador">
                     Doadores
                 </a>
 
-                <a href="<%= ctx %>/instituicao/listar">
+                <a href="<%= ctx %>/instituicao/listaInstituicao">
                     Instituições
                 </a>
 
-                <a href="<%= ctx %>/doacao/listar">
+                <a href="<%= ctx %>/doacao/listaDoacao">
                     Doações
                 </a>
 
@@ -111,7 +111,7 @@
 
                 <a
                     class="card"
-                    href="<%= ctx %>/doador/listar"
+                    href="<%= ctx %>/doador/listaDoador"
                 >
 
                     <div class="card-icone">
@@ -135,7 +135,7 @@
 
                 <a
                     class="card"
-                    href="<%= ctx %>/instituicao/listar"
+                    href="<%= ctx %>/instituicao/listaInstituicao"
                 >
 
                     <div class="card-icone">
@@ -159,7 +159,7 @@
 
                 <a
                     class="card"
-                    href="<%= ctx %>/doacao/listar"
+                    href="<%= ctx %>/doacao/listaDoacao"
                 >
 
                     <div class="card-icone">

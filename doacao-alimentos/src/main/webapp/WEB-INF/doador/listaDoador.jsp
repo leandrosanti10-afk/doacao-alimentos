@@ -1,6 +1,7 @@
 <%@ page import="java.util.List" %>
 <%@ page import="br.com.mvc.model.Doador" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="java.time.format.DateTimeFormatter" %>
 
 <%
     List<Doador> doadores =
@@ -11,6 +12,9 @@
 
     String erro =
             (String) request.getAttribute("erro");
+
+    DateTimeFormatter formatoData =
+            DateTimeFormatter.ofPattern("dd/MM/yyyy");
 %>
 
 <!DOCTYPE html>
@@ -27,7 +31,7 @@
 
     <title>Doadores — DoaFácil</title>
 
-    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=3">
+    <link rel="stylesheet" href="<%= ctx %>/assets/css/style.css?v=6">
 
 </head>
 
@@ -168,7 +172,9 @@
                                 </td>
 
                                 <td>
-                                    <%= doador.getDataCadastro() %>
+                                    <%= doador.getDataCadastro() != null
+                                    ? doador.getDataCadastro().format(formatoData)
+                                    : "" %>
                                 </td>
 
                                 <td class="acoes">

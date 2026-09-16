@@ -4,6 +4,8 @@ import br.com.mvc.dao.InstituicaoDAO;
 import br.com.mvc.model.Instituicao;
 
 import java.util.List;
+import br.com.mvc.util.FormatadorTelefone;
+import br.com.mvc.util.FormatadorTexto;
 
 public class InstituicaoService {
 
@@ -26,6 +28,24 @@ public class InstituicaoService {
             Instituicao instituicao) {
 
         validar(instituicao);
+
+        instituicao.setNome(
+                FormatadorTexto.capitalizar(
+                        instituicao.getNome()
+                )
+        );
+
+        instituicao.setCidade(
+                FormatadorTexto.capitalizar(
+                        instituicao.getCidade()
+                )
+        );
+
+        instituicao.setTelefone(
+                FormatadorTelefone.formatar(
+                        instituicao.getTelefone()
+                )
+        );
 
         if (instituicaoDAO.existeEmail(
                 instituicao.getEmail(),
@@ -54,6 +74,24 @@ public class InstituicaoService {
             Instituicao instituicao) {
 
         validar(instituicao);
+
+        instituicao.setNome(
+                FormatadorTexto.capitalizar(
+                        instituicao.getNome()
+                )
+        );
+
+        instituicao.setCidade(
+                FormatadorTexto.capitalizar(
+                        instituicao.getCidade()
+                )
+        );
+
+        instituicao.setTelefone(
+                FormatadorTelefone.formatar(
+                        instituicao.getTelefone()
+                )
+        );
 
         if (instituicaoDAO.existeEmail(
                 instituicao.getEmail(),
