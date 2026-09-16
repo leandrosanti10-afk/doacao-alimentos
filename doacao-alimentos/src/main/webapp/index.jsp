@@ -197,8 +197,6 @@
 
     </footer>
 
-    <script src="<%= ctx %>/assets/js/script.js?v=2"></script>
-
 </body>
 
 </html>
