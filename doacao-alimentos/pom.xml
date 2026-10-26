@@ -31,6 +31,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- Gson: conversão de objetos Java em JSON e vice-versa -->
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.14.0</version>
+        </dependency>
+
         <!-- Driver para conexão com MySQL -->
         <dependency>
             <groupId>com.mysql</groupId>
