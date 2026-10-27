@@ -9,11 +9,11 @@ import java.util.List;
 /** Persistencia de doadores; conexoes e recursos gerenciados pelo BaseDAO. */
 public class DoadorDAO extends BaseDAO {
 
-    public void inserir(Doador doador) {
+    public Long inserir(Doador doador) {
         String sql = "INSERT INTO doadores "
                 + "(nome, cpf_cnpj, email, telefone, cidade) "
                 + "VALUES (?, ?, ?, ?, ?)";
-        executarAtualizacao(sql, ps -> {
+        return executarInsercaoComId(sql, ps -> {
             ps.setString(1, doador.getNome());
             ps.setString(2, doador.getCpfCnpj());
             ps.setString(3, doador.getEmail());

@@ -21,7 +21,7 @@ public class DoadorService {
         return doadorDAO.buscarPorId(id);
     }
 
-    public void inserir(Doador doador) {
+    public Long inserir(Doador doador) {
 
         validar(doador);
 
@@ -76,7 +76,7 @@ public class DoadorService {
             );
         }
 
-        doadorDAO.inserir(doador);
+        return doadorDAO.inserir(doador);
     }
 
     public void alterar(Doador doador) {
