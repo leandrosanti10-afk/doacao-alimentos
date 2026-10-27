@@ -1,72 +1,57 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
-                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
-    <modelVersion>4.0.0</modelVersion>
-
-    <groupId>com.doacao.alimentos</groupId>
-    <artifactId>doacao-alimentos</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
-    <packaging>war</packaging>
-
-    <name>DoaFácil</name>
-
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>23</maven.compiler.source>
-        <maven.compiler.target>23</maven.compiler.target>
-    </properties>
-
-    <dependencies>
-
-        <!-- Servlet API - fornecida pelo Tomcat 11 -->
-        <dependency>
-            <groupId>jakarta.servlet</groupId>
-            <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.1.0</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- Gson: conversão de objetos Java em JSON e vice-versa -->
-        <dependency>
-            <groupId>com.google.code.gson</groupId>
-            <artifactId>gson</artifactId>
-            <version>2.14.0</version>
-        </dependency>
-
-        <!-- Driver para conexão com MySQL -->
-        <dependency>
-            <groupId>com.mysql</groupId>
-            <artifactId>mysql-connector-j</artifactId>
-            <version>9.4.0</version>
-        </dependency>
-
-    </dependencies>
-
-    <build>
-
-        <finalName>doacao-alimentos</finalName>
-
-        <plugins>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.13.0</version>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>3.4.0</version>
-            </plugin>
-
-        </plugins>
-
-    </build>
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<modelVersion>4.0.0</modelVersion>
+<groupId>com.doacao.alimentos</groupId>
+<artifactId>doacao-alimentos</artifactId>
+<version>1.0-SNAPSHOT</version>
+<packaging>war</packaging>
+<name>DoaFácil</name>
+<properties>
+<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+<maven.compiler.source>23</maven.compiler.source>
+<maven.compiler.target>23</maven.compiler.target>
+</properties>
+<dependencies>
+<!--  Servlet API - fornecida pelo Tomcat 11  -->
+<dependency>
+<groupId>jakarta.servlet</groupId>
+<artifactId>jakarta.servlet-api</artifactId>
+<version>6.1.0</version>
+<scope>provided</scope>
+</dependency>
+<!--  Gson: conversão de objetos Java em JSON e vice-versa  -->
+<dependency>
+<groupId>com.google.code.gson</groupId>
+<artifactId>gson</artifactId>
+<version>2.14.0</version>
+</dependency>
+<!--  Pool de conexoes: reutiliza conexoes fisicas com seguranca em requisiscoes concorrentes.  -->
+<dependency>
+<groupId>com.zaxxer</groupId>
+<artifactId>HikariCP</artifactId>
+<version>5.1.0</version>
+</dependency>
+<!--  Driver para conexão com MySQL  -->
+<dependency>
+<groupId>com.mysql</groupId>
+<artifactId>mysql-connector-j</artifactId>
+<version>9.4.0</version>
+</dependency>
+</dependencies>
+<build>
+<finalName>doacao-alimentos</finalName>
+<plugins>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-compiler-plugin</artifactId>
+<version>3.13.0</version>
+</plugin>
+<plugin>
+<groupId>org.apache.maven.plugins</groupId>
+<artifactId>maven-war-plugin</artifactId>
+<version>3.4.0</version>
+</plugin>
+</plugins>
+</build>
 </project>
