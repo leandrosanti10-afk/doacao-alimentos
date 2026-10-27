@@ -1,367 +1,110 @@
 package br.com.mvc.dao;
 
-import br.com.mvc.config.MysqlSingleton;
 import br.com.mvc.model.Doador;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import java.util.ArrayList;
 import java.util.List;
 
-public class DoadorDAO {
+/** Persistencia de doadores; conexoes e recursos gerenciados pelo BaseDAO. */
+public class DoadorDAO extends BaseDAO {
 
     public void inserir(Doador doador) {
-
-        String sql =
-                "INSERT INTO doadores "
+        String sql = "INSERT INTO doadores "
                 + "(nome, cpf_cnpj, email, telefone, cidade) "
                 + "VALUES (?, ?, ?, ?, ?)";
-
-        try {
-
-            Connection conexao =
-                    MysqlSingleton.getInstancia().getConexao();
-
-            PreparedStatement ps =
-                    conexao.prepareStatement(sql);
-
+        executarAtualizacao(sql, ps -> {
             ps.setString(1, doador.getNome());
             ps.setString(2, doador.getCpfCnpj());
             ps.setString(3, doador.getEmail());
             ps.setString(4, doador.getTelefone());
             ps.setString(5, doador.getCidade());
-
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "Erro ao inserir doador.",
-                    e
-            );
-        }
+        }, "Erro ao inserir doador.");
     }
 
     public List<Doador> listar() {
-
-        String sql =
-                "SELECT id, nome, cpf_cnpj, email, telefone, cidade, data_cadastro "
+        String sql = "SELECT id, nome, cpf_cnpj, email, telefone, cidade, data_cadastro "
                 + "FROM doadores ORDER BY data_cadastro DESC, id DESC";
-
-        List<Doador> lista =
-                new ArrayList<>();
-
-        try {
-
-            Connection conexao =
-                    MysqlSingleton.getInstancia().getConexao();
-
-            PreparedStatement ps =
-                    conexao.prepareStatement(sql);
-
-            ResultSet rs =
-                    ps.executeQuery();
-
+        return executarConsulta(sql, null, rs -> {
+            List<Doador> lista = new ArrayList<>();
             while (rs.next()) {
-
-                Doador doador =
-                        montarDoador(rs);
-
-                lista.add(doador);
+                lista.add(montarDoador(rs));
             }
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "Erro ao listar doadores.",
-                    e
-            );
-        }
-
-        return lista;
+            return lista;
+        }, "Erro ao listar doadores.");
     }
 
     public Doador buscarPorId(Long id) {
-
-        String sql =
-                "SELECT id, nome, cpf_cnpj, email, telefone, cidade, data_cadastro "
+        String sql = "SELECT id, nome, cpf_cnpj, email, telefone, cidade, data_cadastro "
                 + "FROM doadores WHERE id = ?";
-
-        try {
-
-            Connection conexao =
-                    MysqlSingleton.getInstancia().getConexao();
-
-            PreparedStatement ps =
-                    conexao.prepareStatement(sql);
-
-            ps.setLong(1, id);
-
-            ResultSet rs =
-                    ps.executeQuery();
-
-            if (rs.next()) {
-                return montarDoador(rs);
-            }
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "Erro ao buscar doador.",
-                    e
-            );
-        }
-
-        return null;
+        return executarConsulta(sql, ps -> ps.setLong(1, id), rs ->
+                rs.next() ? montarDoador(rs) : null,
+                "Erro ao buscar doador.");
     }
 
     public void alterar(Doador doador) {
-
-        String sql =
-                "UPDATE doadores SET "
-                + "nome = ?, "
-                + "cpf_cnpj = ?, "
-                + "email = ?, "
-                + "telefone = ?, "
-                + "cidade = ? "
-                + "WHERE id = ?";
-
-        try {
-
-            Connection conexao =
-                    MysqlSingleton.getInstancia().getConexao();
-
-            PreparedStatement ps =
-                    conexao.prepareStatement(sql);
-
+        String sql = "UPDATE doadores SET nome = ?, cpf_cnpj = ?, email = ?, "
+                + "telefone = ?, cidade = ? WHERE id = ?";
+        executarAtualizacao(sql, ps -> {
             ps.setString(1, doador.getNome());
             ps.setString(2, doador.getCpfCnpj());
             ps.setString(3, doador.getEmail());
             ps.setString(4, doador.getTelefone());
             ps.setString(5, doador.getCidade());
             ps.setLong(6, doador.getId());
-
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "Erro ao alterar doador.",
-                    e
-            );
-        }
+        }, "Erro ao alterar doador.");
     }
 
     public void deletar(Long id) {
-
-        String sql =
-                "DELETE FROM doadores WHERE id = ?";
-
-        try {
-
-            Connection conexao =
-                    MysqlSingleton.getInstancia().getConexao();
-
-            PreparedStatement ps =
-                    conexao.prepareStatement(sql);
-
-            ps.setLong(1, id);
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "Erro ao excluir doador.",
-                    e
-            );
-        }
+        executarAtualizacao("DELETE FROM doadores WHERE id = ?",
+                ps -> ps.setLong(1, id), "Erro ao excluir doador.");
     }
 
     public boolean possuiDoacoes(Long id) {
-
-        String sql =
-                "SELECT COUNT(*) FROM doacoes WHERE doador_id = ?";
-
-        try {
-
-            Connection conexao =
-                    MysqlSingleton.getInstancia().getConexao();
-
-            PreparedStatement ps =
-                    conexao.prepareStatement(sql);
-
-            ps.setLong(1, id);
-
-            ResultSet rs =
-                    ps.executeQuery();
-
-            if (rs.next()) {
-                return rs.getInt(1) > 0;
-            }
-
-        } catch (SQLException e) {
-
-            throw new RuntimeException(
-                    "Erro ao verificar doações do doador.",
-                    e
-            );
-        }
-
-        return false;
-    }
-
-    private Doador montarDoador(ResultSet rs)
-            throws SQLException {
-
-        Doador doador =
-                new Doador();
-
-        doador.setId(
-                rs.getLong("id")
-        );
-
-        doador.setNome(
-                rs.getString("nome")
-        );
-
-        doador.setCpfCnpj(
-                rs.getString("cpf_cnpj")
-        );
-
-        doador.setEmail(
-                rs.getString("email")
-        );
-
-        doador.setTelefone(
-                rs.getString("telefone")
-        );
-
-        doador.setCidade(
-                rs.getString("cidade")
-        );
-
-        if (rs.getTimestamp("data_cadastro") != null) {
-
-            doador.setDataCadastro(
-                    rs.getTimestamp("data_cadastro")
-                            .toLocalDateTime()
-            );
-        }
-
-        return doador;
+        return executarConsulta("SELECT COUNT(*) FROM doacoes WHERE doador_id = ?",
+                ps -> ps.setLong(1, id),
+                rs -> rs.next() && rs.getInt(1) > 0,
+                "Erro ao verificar doacoes do doador.");
     }
 
     public boolean existeCpfCnpj(String cpfCnpj, Long ignorarId) {
+        return existeCampo("cpf_cnpj", cpfCnpj, ignorarId,
+                "Erro ao verificar CPF/CNPJ.");
+    }
 
-        String sql =
-                "SELECT COUNT(*) FROM doadores "
-                + "WHERE cpf_cnpj = ? "
-                + "AND (? IS NULL OR id <> ?)";
+    public boolean existeEmail(String email, Long ignorarId) {
+        return existeCampo("email", email, ignorarId,
+                "Erro ao verificar email.");
+    }
 
-        try {
+    public boolean existeTelefone(String telefone, Long ignorarId) {
+        return existeCampo("telefone", telefone, ignorarId,
+                "Erro ao verificar telefone.");
+    }
 
-                Connection conexao =
-                        MysqlSingleton.getInstancia().getConexao();
+    private boolean existeCampo(String coluna, String valor, Long ignorarId,
+            String mensagemErro) {
+        // coluna e passada somente por metodos privados acima, nunca por entrada HTTP.
+        String sql = "SELECT COUNT(*) FROM doadores WHERE " + coluna
+                + " = ? AND (? IS NULL OR id <> ?)";
+        return executarConsulta(sql, ps -> {
+            ps.setString(1, valor);
+            prepararIdIgnorado(ps, ignorarId);
+        }, rs -> rs.next() && rs.getInt(1) > 0, mensagemErro);
+    }
 
-                PreparedStatement ps =
-                        conexao.prepareStatement(sql);
-
-                ps.setString(1, cpfCnpj);
-
-                if (ignorarId == null) {
-                ps.setNull(2, java.sql.Types.BIGINT);
-                ps.setNull(3, java.sql.Types.BIGINT);
-                } else {
-                ps.setLong(2, ignorarId);
-                ps.setLong(3, ignorarId);
-                }
-
-                ResultSet rs = ps.executeQuery();
-
-                return rs.next() && rs.getInt(1) > 0;
-
-        } catch (SQLException e) {
-                throw new RuntimeException(
-                        "Erro ao verificar CPF/CNPJ.",
-                        e
-                );
+    private Doador montarDoador(ResultSet rs) throws SQLException {
+        Doador doador = new Doador();
+        doador.setId(rs.getLong("id"));
+        doador.setNome(rs.getString("nome"));
+        doador.setCpfCnpj(rs.getString("cpf_cnpj"));
+        doador.setEmail(rs.getString("email"));
+        doador.setTelefone(rs.getString("telefone"));
+        doador.setCidade(rs.getString("cidade"));
+        java.sql.Timestamp cadastro = rs.getTimestamp("data_cadastro");
+        if (cadastro != null) {
+            doador.setDataCadastro(cadastro.toLocalDateTime());
         }
-        }
-
-        public boolean existeEmail(String email, Long ignorarId) {
-
-        String sql =
-                "SELECT COUNT(*) FROM doadores "
-                + "WHERE email = ? "
-                + "AND (? IS NULL OR id <> ?)";
-
-        try {
-
-                Connection conexao =
-                        MysqlSingleton.getInstancia().getConexao();
-
-                PreparedStatement ps =
-                        conexao.prepareStatement(sql);
-
-                ps.setString(1, email);
-
-                if (ignorarId == null) {
-                ps.setNull(2, java.sql.Types.BIGINT);
-                ps.setNull(3, java.sql.Types.BIGINT);
-                } else {
-                ps.setLong(2, ignorarId);
-                ps.setLong(3, ignorarId);
-                }
-
-                ResultSet rs = ps.executeQuery();
-
-                return rs.next() && rs.getInt(1) > 0;
-
-        } catch (SQLException e) {
-                throw new RuntimeException(
-                        "Erro ao verificar email.",
-                        e
-                );
-        }
-        }
-
-        public boolean existeTelefone(String telefone, Long ignorarId) {
-
-        String sql =
-                "SELECT COUNT(*) FROM doadores "
-                + "WHERE telefone = ? "
-                + "AND (? IS NULL OR id <> ?)";
-
-        try {
-
-                Connection conexao =
-                        MysqlSingleton.getInstancia().getConexao();
-
-                PreparedStatement ps =
-                        conexao.prepareStatement(sql);
-
-                ps.setString(1, telefone);
-
-                if (ignorarId == null) {
-                ps.setNull(2, java.sql.Types.BIGINT);
-                ps.setNull(3, java.sql.Types.BIGINT);
-                } else {
-                ps.setLong(2, ignorarId);
-                ps.setLong(3, ignorarId);
-                }
-
-                ResultSet rs = ps.executeQuery();
-
-                return rs.next() && rs.getInt(1) > 0;
-
-        } catch (SQLException e) {
-                throw new RuntimeException(
-                        "Erro ao verificar telefone.",
-                        e
-                );
-        }
-        }
+        return doador;
+    }
 }
