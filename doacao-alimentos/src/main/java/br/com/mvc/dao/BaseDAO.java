@@ -4,6 +4,7 @@ import br.com.mvc.config.MysqlSingleton;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.SQLException;
 
 /** Centraliza conexao, parametros SQL, execucao e fechamento de recursos JDBC. */
@@ -30,6 +31,33 @@ public abstract class BaseDAO {
                 parametros.aplicar(ps);
             }
             return ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(mensagemErro, e);
+        }
+    }
+
+    /**
+     * Executa INSERT e devolve a chave primaria gerada pelo MySQL.
+     * A conexao volta ao pool mesmo quando ocorre erro.
+     */
+    protected Long executarInsercaoComId(
+            String sql, Parametros parametros, String mensagemErro) {
+        try (Connection conexao = conexoes.getConexao();
+             PreparedStatement ps = conexao.prepareStatement(
+                     sql, Statement.RETURN_GENERATED_KEYS)) {
+            if (parametros != null) {
+                parametros.aplicar(ps);
+            }
+            int linhas = ps.executeUpdate();
+            if (linhas != 1) {
+                throw new SQLException("A insercao nao afetou exatamente uma linha.");
+            }
+            try (ResultSet chaves = ps.getGeneratedKeys()) {
+                if (chaves.next()) {
+                    return chaves.getLong(1);
+                }
+            }
+            throw new SQLException("O banco nao retornou o ID gerado.");
         } catch (SQLException e) {
             throw new RuntimeException(mensagemErro, e);
         }
