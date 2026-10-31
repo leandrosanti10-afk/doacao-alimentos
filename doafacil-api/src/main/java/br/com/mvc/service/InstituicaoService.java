@@ -24,7 +24,7 @@ public class InstituicaoService {
                 .buscarPorId(id);
     }
 
-    public void inserir(
+    public Long inserir(
             Instituicao instituicao) {
 
         validar(instituicao);
@@ -65,7 +65,7 @@ public class InstituicaoService {
             );
         }
 
-        instituicaoDAO.inserir(
+        return instituicaoDAO.inserir(
                 instituicao
         );
     }

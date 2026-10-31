@@ -9,10 +9,10 @@ import java.util.List;
 /** Persistencia de instituicoes com reutilizacao da infraestrutura BaseDAO. */
 public class InstituicaoDAO extends BaseDAO {
 
-    public void inserir(Instituicao instituicao) {
+    public Long inserir(Instituicao instituicao) {
         String sql = "INSERT INTO instituicoes "
                 + "(nome, endereco, telefone, email, cidade) VALUES (?, ?, ?, ?, ?)";
-        executarAtualizacao(sql, ps -> {
+        return executarInsercaoComId(sql, ps -> {
             ps.setString(1, instituicao.getNome());
             ps.setString(2, instituicao.getEndereco());
             ps.setString(3, instituicao.getTelefone());
