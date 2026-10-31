@@ -6,13 +6,15 @@
  Utiliza doador e instituicao EXISTENTES SOMENTE como referencias.
  Cria e apaga UMA doacao temporaria; nunca altera doadores,
  instituicoes ou doacoes anteriores ao teste.
- API ainda sem JWT: execute somente em ambiente local.
+ JWT: solicita credenciais de desenvolvimento para obter token via /api/auth/login.
 #>
 param(
     [string]$BaseApi = 'http://localhost:8081/doafacil-api/api'
 )
 
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot '_JwtTesteHelper.ps1')
+$script:TokenJwt = Obter-TokenJwtTeste -BaseApi $BaseApi
 $baseUrl = "$BaseApi/doacoes"
 $idTemporario = $null
 $removido = $false
@@ -28,6 +30,7 @@ function Enviar-Requisicao {
     $parametros = @{
         Uri = $Url; Method = $Metodo; UseBasicParsing = $true; ErrorAction = 'Stop'
     }
+    $parametros.Headers = @{ Authorization = "Bearer $script:TokenJwt" }
     if ($null -ne $Dados) {
         $parametros.ContentType = 'application/json; charset=utf-8'
         if ($Dados -is [string]) {
