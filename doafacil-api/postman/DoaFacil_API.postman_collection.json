@@ -1,0 +1,655 @@
+{
+  "info": {
+    "name": "DoaFácil API REST — Etapa 7",
+    "description": "Coleção para testes locais; JWT obrigatório nos CRUDs. Configurar ambiente local; não exportar senhas nem tokens. Não executar todos os CRUDs sobre registros reais.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt}}",
+        "type": "string"
+      }
+    ]
+  },
+  "event": [],
+  "item": [
+    {
+      "name": "01 - Diagnostico e JWT (nao altera dados)",
+      "description": "Faça login antes dos CRUDs; rota status e teste sem token não modificam dados.",
+      "item": [
+        {
+          "name": "GET status publico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/status",
+            "description": "Sem autenticação; não modifica dados.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET doadores sem token → 401",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doadores",
+            "description": "Valida filtro JWT, não modifica dados.",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 401\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST login JWT",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/auth/login",
+            "description": "Configure apiUsuario e apiSenha SOMENTE no ambiente local. O token é salvo no ambiente local (não exporte este ambiente com valor preenchido).",
+            "auth": {
+              "type": "noauth"
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"usuario\": \"{{apiUsuario}}\",\n  \"senha\": \"{{apiSenha}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "if (pm.response.code === 200) {",
+                  "    const dados = pm.response.json();",
+                  "    pm.test(\"Bearer e expiração disponíveis\", function () {",
+                  "        pm.expect(dados.token_type).to.eql(\"Bearer\");",
+                  "        pm.expect(dados.expires_in).to.be.above(0);",
+                  "        pm.expect(dados.access_token).to.be.a(\"string\").and.not.empty;",
+                  "    });",
+                  "    if (dados.access_token) pm.environment.set(\"jwt\", dados.access_token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET doadores autenticado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doadores"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Lista JSON\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET instituicoes autenticado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/instituicoes"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Lista JSON\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET doacoes autenticado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doacoes"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Lista JSON\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - Doadores (CRUD manual; dados temporarios)",
+      "description": "Execute POST -> GET individual -> PUT -> DELETE nessa ordem, com JWT obtido antes. Não execute em registros reais.",
+      "item": [
+        {
+          "name": "GET listar doadores",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doadores"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Lista JSON\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST cadastrar doador TEMPORARIO",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/doadores",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pessoa Temporaria Postman\",\n  \"cpfCnpj\": \"{{testeCpf}}\",\n  \"email\": \"{{testeEmailDoador}}\",\n  \"telefone\": \"{{testeFoneDoador}}\",\n  \"cidade\": \"Uberaba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const sufixo = Math.floor(Math.random() * 899999999 + 100000000).toString();",
+                  "pm.environment.set(\"testeCpf\", \"77\" + sufixo);",
+                  "pm.environment.set(\"testeFoneDoador\", \"34\" + (Math.floor(Math.random() * 899999999 + 100000000)).toString());",
+                  "pm.environment.set(\"testeEmailDoador\", \"doador.\" + Date.now() + \"@example.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const dados = pm.response.json();",
+                  "    pm.test(\"Cadastro retornou ID\", () => pm.expect(dados.id).to.be.a(\"number\"));",
+                  "    pm.environment.set(\"doadorId\", String(dados.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET buscar doador temporario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doadores/{{doadorId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Objeto JSON com id\", function () { pm.expect(pm.response.json()).to.have.property(\"id\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT atualizar doador temporario",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/doadores/{{doadorId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Pessoa Atualizada Postman\",\n  \"cpfCnpj\": \"{{testeCpf}}\",\n  \"email\": \"{{testeEmailDoador}}\",\n  \"telefone\": \"{{testeFoneDoador}}\",\n  \"cidade\": \"Ribeirao Preto\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Objeto JSON com id\", function () { pm.expect(pm.response.json()).to.have.property(\"id\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE excluir doador temporario",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/doadores/{{doadorId}}",
+            "description": "Somente ID temporário registrado no ambiente; confira antes de executar."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });",
+                  "pm.environment.unset(\"doadorId\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "03 - Instituicoes (CRUD manual; dados temporarios)",
+      "description": "Execute POST -> GET individual -> PUT -> DELETE nessa ordem, com JWT obtido antes. Não execute em registros reais.",
+      "item": [
+        {
+          "name": "GET listar instituicoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/instituicoes"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Lista JSON\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST cadastrar instituicao TEMPORARIA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/instituicoes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Instituicao Temporaria Postman\",\n  \"endereco\": \"Rua Teste, 100\",\n  \"telefone\": \"{{testeFoneInstituicao}}\",\n  \"email\": \"{{testeEmailInstituicao}}\",\n  \"cidade\": \"Uberaba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"testeFoneInstituicao\", \"34\" + (Math.floor(Math.random() * 899999999 + 100000000)).toString());",
+                  "pm.environment.set(\"testeEmailInstituicao\", \"instituicao.\" + Date.now() + \"@example.com\");"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const dados = pm.response.json();",
+                  "    pm.test(\"Cadastro retornou ID\", () => pm.expect(dados.id).to.be.a(\"number\"));",
+                  "    pm.environment.set(\"instituicaoId\", String(dados.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET buscar instituicao temporaria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/instituicoes/{{instituicaoId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Objeto JSON com id\", function () { pm.expect(pm.response.json()).to.have.property(\"id\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT atualizar instituicao temporaria",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/instituicoes/{{instituicaoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Instituicao Atualizada Postman\",\n  \"endereco\": \"Rua Teste, 101\",\n  \"telefone\": \"{{testeFoneInstituicao}}\",\n  \"email\": \"{{testeEmailInstituicao}}\",\n  \"cidade\": \"Uberaba\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Objeto JSON com id\", function () { pm.expect(pm.response.json()).to.have.property(\"id\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE excluir instituicao temporaria",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/instituicoes/{{instituicaoId}}",
+            "description": "Somente ID temporário registrado no ambiente; confira antes de executar."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });",
+                  "pm.environment.unset(\"instituicaoId\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "04 - Doacoes (CRUD manual; requer referencias)",
+      "description": "Antes do POST, informe no ambiente doadorReferenciaId e instituicaoReferenciaId EXISTENTES. O CRUD cria/edita/remove SOMENTE a doação temporária; não altera os registros de referência.",
+      "item": [
+        {
+          "name": "GET listar doacoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doacoes"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Lista JSON\", function () { pm.expect(pm.response.json()).to.be.an(\"array\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "POST cadastrar doacao TEMPORARIA",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/doacoes",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doador\": {\n    \"id\": {{doadorReferenciaId}}\n  },\n  \"instituicao\": {\n    \"id\": {{instituicaoReferenciaId}}\n  },\n  \"descricao\": \"Doacao temporaria Postman\",\n  \"dataDoacao\": \"{{dataDoacaoTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.environment.set(\"dataDoacaoTeste\", new Date().toISOString().slice(0, 10));"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 201\", function () { pm.response.to.have.status(201); });",
+                  "if (pm.response.code === 201) {",
+                  "    const dados = pm.response.json();",
+                  "    pm.test(\"Cadastro retornou ID\", () => pm.expect(dados.id).to.be.a(\"number\"));",
+                  "    pm.environment.set(\"doacaoId\", String(dados.id));",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "GET buscar doacao temporaria",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{baseUrl}}/doacoes/{{doacaoId}}"
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Objeto JSON com id\", function () { pm.expect(pm.response.json()).to.have.property(\"id\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "PUT atualizar doacao temporaria",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json; charset=UTF-8",
+                "type": "text"
+              }
+            ],
+            "url": "{{baseUrl}}/doacoes/{{doacaoId}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"doador\": {\n    \"id\": {{doadorReferenciaId}}\n  },\n  \"instituicao\": {\n    \"id\": {{instituicaoReferenciaId}}\n  },\n  \"descricao\": \"Doacao temporaria atualizada Postman\",\n  \"dataDoacao\": \"{{dataDoacaoTeste}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Objeto JSON com id\", function () { pm.expect(pm.response.json()).to.have.property(\"id\"); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "DELETE excluir doacao temporaria",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{baseUrl}}/doacoes/{{doacaoId}}",
+            "description": "Somente ID temporário registrado no ambiente; confira antes de executar."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"HTTP 204\", function () { pm.response.to.have.status(204); });",
+                  "pm.environment.unset(\"doacaoId\");"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": []
+}
