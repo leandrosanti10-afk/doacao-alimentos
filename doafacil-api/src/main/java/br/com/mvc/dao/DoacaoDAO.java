@@ -24,11 +24,11 @@ public class DoacaoDAO extends BaseDAO {
             + "JOIN doadores doa ON d.doador_id = doa.id "
             + "JOIN instituicoes i ON d.instituicao_id = i.id ";
 
-    public void inserir(Doacao doacao) {
+    public Long inserir(Doacao doacao) {
         String sql = "INSERT INTO doacoes "
                 + "(doador_id, instituicao_id, descricao, data_doacao) "
                 + "VALUES (?, ?, ?, ?)";
-        executarAtualizacao(sql, ps -> {
+        return executarInsercaoComId(sql, ps -> {
             ps.setLong(1, doacao.getDoador().getId());
             ps.setLong(2, doacao.getInstituicao().getId());
             ps.setString(3, doacao.getDescricao());
