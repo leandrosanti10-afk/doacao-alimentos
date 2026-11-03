@@ -1,369 +1,118 @@
-DoaFácil
+# DoaFácil — Plataforma de Doações de Alimentos
 
-Plataforma web para gerenciamento de doações de alimentos, desenvolvida em Java Web utilizando o padrão arquitetural MVC (Model-View-Controller).
+Projeto acadêmico de **Aplicações para Internet**, desenvolvido em Java 23, Maven, Jakarta Servlets, JSP, Gson, MySQL e Apache Tomcat 11.
 
-O sistema permite cadastrar doadores, instituições e doações, mantendo o relacionamento entre essas entidades e oferecendo operações completas de CRUD.
+O DoaFácil gerencia **doadores, instituições e doações**, com CRUD completo, validação de campos, prevenção de duplicidades e proteção de vínculos entre entidades.
 
-Funcionalidades
+## Arquitetura atual
 
-Cadastro de doadores
+Há **dois projetos Maven independentes no mesmo repositório Git**:
 
-Listagem de doadores
+```text
+Navegador
+    |
+    v
+DoaFácil Web — Tomcat 8080
+JSP -> Controllers MVC -> Services -> DAOs HTTP
+    |
+    | HTTP + JSON + Authorization: Bearer <JWT>
+    v
+DoaFácil API — Tomcat 8081
+Filtro JWT -> Controllers REST -> Services -> DAOs JDBC
+    |
+    v
+MySQL — localhost:3306 / doacao_alimentos
+```
 
-Edição de doadores
+**Apenas a API REST acessa o MySQL.** O Web não contém driver JDBC, pool HikariCP ou endpoints REST próprios após a migração da Pessoa 2. A conta JWT é uma **conta de integração entre sistemas**, e não um login individual para os usuários das JSPs.
 
-Exclusão de doadores
+## Organização do repositório
 
-Cadastro de instituições
+```text
+doacaoAlimentos/
+├── README.md
+├── doacao-alimentos/          # Web MVC/JSP — porta 8080
+│   ├── pom.xml
+│   ├── src/
+│   ├── scripts/
+│   └── docs/
+└── doafacil-api/             # REST API + JWT + MySQL — porta 8081
+    ├── pom.xml
+    ├── src/
+    ├── scripts/
+    ├── docs/
+    └── postman/
+```
 
-Listagem de instituições
+As pastas `target/` são saídas de compilação e não devem ser versionadas.
 
-Edição de instituições
+## Requisitos
 
-Exclusão de instituições
+- JDK 23 (`java -version`)
+- Maven (`mvn -version`)
+- Duas instâncias separadas de Tomcat 11: Web em **8080** e API em **8081**
+- MySQL com o banco `doacao_alimentos`, acessível à **API**
+- Git e, opcionalmente, Postman
 
-Cadastro de doações
+## Configuração por servidor
 
-Listagem de doações
+**Tomcat API (8081):** variáveis de ambiente `DB_URL`, `DB_USER`, `DB_PASSWORD`, `API_AUTH_USER`, `API_AUTH_PASSWORD`, `JWT_SECRET_BASE64` e `JWT_TTL_MINUTES`.
 
-Edição de doações
+**Tomcat Web (8080):** variáveis de ambiente `DOAFACIL_API_USER`, `DOAFACIL_API_PASSWORD` e, opcionalmente, `DOAFACIL_API_URL` (padrão: `http://localhost:8081/doafacil-api/api`).
 
-Exclusão de doações
+As credenciais de integração configuradas no Web devem corresponder a `API_AUTH_USER` e `API_AUTH_PASSWORD` configuradas na API. **Não use `DB_USER` como usuário de login JWT.** Não inclua senhas, chaves ou tokens no Git ou em capturas de tela.
 
-Validação de dados antes da gravação
+As variáveis podem ser cadastradas na configuração do servidor do Community Server Connector ou no ambiente do processo que inicia o Tomcat. Após mudá-las, reinicie o processo do servidor. Se configuradas como variáveis de usuário do Windows, reinicie também o VS Code para que os novos processos as herdem.
 
-Verificação de CPF/CNPJ, e-mail e telefone duplicados
+## Compilação
 
-Formatação automática de CPF/CNPJ
+A partir da raiz do repositório:
 
-Formatação automática de telefone
-
-Padronização de nomes e cidades
-
-Bloqueio da exclusão de doadores ou instituições vinculados a doações
-
-Ordenação das listagens por data e identificador
-
-Tecnologias utilizadas
-
-Java 23
-
-Jakarta Servlet API 6.1
-
-JSP
-
-HTML
-
-CSS
-
-MySQL
-
-MySQL Connector/J 9.4
-
-Maven
-
-Apache Tomcat 11
-
-JUnit 4.13.2
-
-Arquitetura
-
-O projeto foi organizado utilizando o padrão MVC e camadas auxiliares para separar responsabilidades.
-
-Requisição HTTP
-      ↓
-Controller
-      ↓
-Service
-      ↓
-DAO
-      ↓
-MySQL
-
-Controller
-      ↓
-JSP / View
-
-Model
-
-Representa as entidades e os dados utilizados pelo sistema.
-
-Principais classes:
-
-Doador
-
-Instituicao
-
-Doacao
-
-Controller
-
-Recebe as requisições HTTP, identifica a rota solicitada, chama a camada de serviço e encaminha os dados para as páginas JSP.
-
-Principais Controllers:
-
-DoadorController
-
-InstituicaoController
-
-DoacaoController
-
-Service
-
-Responsável pelas regras de negócio e validações antes da comunicação com o DAO.
-
-Entre as regras implementadas estão:
-
-validação de campos obrigatórios;
-
-verificação de dados duplicados;
-
-formatação de CPF/CNPJ;
-
-formatação de telefone;
-
-padronização de nomes e cidades;
-
-impedimento de exclusão de registros relacionados a doações.
-
-DAO
-
-Responsável pelo acesso ao banco de dados e execução dos comandos SQL.
-
-Principais DAOs:
-
-DoadorDAO
-
-InstituicaoDAO
-
-DoacaoDAO
-
-View
-
-As telas do sistema foram desenvolvidas em JSP e ficam principalmente em src/main/webapp/WEB-INF.
-
-Estrutura do projeto
-
-doacao-alimentos/
-├── pom.xml
-├── src/
-│   └── main/
-│       ├── java/
-│       │   └── br/com/mvc/
-│       │       ├── config/
-│       │       │   └── MysqlSingleton.java
-│       │       ├── controller/
-│       │       │   ├── DoadorController.java
-│       │       │   ├── InstituicaoController.java
-│       │       │   └── DoacaoController.java
-│       │       ├── dao/
-│       │       │   ├── DoadorDAO.java
-│       │       │   ├── InstituicaoDAO.java
-│       │       │   └── DoacaoDAO.java
-│       │       ├── model/
-│       │       │   ├── Doador.java
-│       │       │   ├── Instituicao.java
-│       │       │   └── Doacao.java
-│       │       ├── service/
-│       │       │   ├── DoadorService.java
-│       │       │   ├── InstituicaoService.java
-│       │       │   └── DoacaoService.java
-│       │       └── util/
-│       │           ├── FormatadorCpfCnpj.java
-│       │           ├── FormatadorTelefone.java
-│       │           └── FormatadorTexto.java
-│       └── webapp/
-│           ├── index.jsp
-│           ├── assets/
-│           │   ├── css/
-│           │   ├── img/
-│           └── WEB-INF/
-│               ├── doador/
-│               ├── instituicao/
-│               ├── doacao/
-│               └── web.xml
-└── .gitignore
-
-Pré-requisitos
-
-Antes de executar o projeto, é necessário possuir:
-
-JDK 23
-
-Apache Maven
-
-Apache Tomcat 11
-
-MySQL Server
-
-Git, caso o projeto seja clonado pelo GitHub
-
-Para verificar Java e Maven:
-
-java -version
-mvn -version
-
-Configuração do banco de dados
-
-O projeto utiliza o banco:
-
-doacao_alimentos
-
-A conexão está configurada para:
-
-Host: localhost
-Porta: 3306
-Usuário: root
-
-A senha do MySQL não fica salva no código-fonte. Ela deve ser informada através da variável de ambiente:
-
-DB_PASSWORD
-
-Windows PowerShell
-
-$env:DB_PASSWORD="SUA_SENHA"
-
-Essa configuração vale para a sessão atual do terminal.
-
-Para salvar a variável de forma permanente no Windows:
-
-setx DB_PASSWORD "SUA_SENHA"
-
-Após usar setx, abra um novo terminal antes de executar o projeto.
-
-Compilação
-
-Na pasta raiz do projeto, execute:
-
+```powershell
+cd .\doafacil-api
 mvn clean package
 
-O Maven irá gerar o arquivo:
+cd ..\doacao-alimentos
+mvn clean package
+```
 
-target/doacao-alimentos.war
+O Maven gera `doafacil-api/target/doafacil-api.war` e `doacao-alimentos/target/doacao-alimentos.war`. Publique cada WAR no Tomcat correspondente. Inicie a API antes do Web.
 
-Execução no Tomcat
+## URLs locais
 
-Faça o deploy de:
+| Destino | URL |
+|---|---|
+| Web — início | `http://localhost:8080/doacao-alimentos/` |
+| Web — Doadores | `http://localhost:8080/doacao-alimentos/doador/listar` |
+| Web — Instituições | `http://localhost:8080/doacao-alimentos/instituicao/listar` |
+| Web — Doações | `http://localhost:8080/doacao-alimentos/doacao/listar` |
+| API — status público | `http://localhost:8081/doafacil-api/api/status` |
+| API — login | `POST http://localhost:8081/doafacil-api/api/auth/login` |
+| API — recursos autenticados | `/api/doadores`, `/api/instituicoes`, `/api/doacoes` |
 
-target/doacao-alimentos.war
+Os Controllers MVC do Web atendem às rotas `/doador/*`, `/instituicao/*` e `/doacao/*`. O CRUD REST pertence apenas à API.
 
-em um servidor Apache Tomcat 11.
+## Testes e entrega
 
-Após iniciar o servidor, acesse:
+No PowerShell, com ambas as instâncias iniciadas:
 
-http://localhost:8080/doacao-alimentos/
+```powershell
+cd .\doacao-alimentos
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File ".\scripts\validarIntegracaoFinal.ps1"
+```
 
-Principais rotas
+Esse comando reutiliza os scripts dos passos anteriores, verifica a ausência de JDBC no Web, testa a comunicação JWT e faz GETs das três telas. Os testes de DAO criam e tentam remover **registros temporários**. Para conferir apenas as consultas, use `-SomenteLeitura`; nesse modo os testes de escrita são omitidos.
 
-Doadores
+A operação completa dos formulários JSP (cadastrar, editar, excluir) também deve ser validada manualmente com dados temporários. Os resultados devem ser anotados em [`doacao-alimentos/docs/RELATORIO_TESTES_FINAIS.md`](doacao-alimentos/docs/RELATORIO_TESTES_FINAIS.md).
 
-/doador/listar
-/doador/inserir
-/doador/alterar
-/doador/deletar
+## Documentação
 
-Instituições
+- [Arquitetura e responsabilidades](doacao-alimentos/docs/ARQUITETURA_WEB_API.md)
+- [Relatório e checklist de validação](doacao-alimentos/docs/RELATORIO_TESTES_FINAIS.md)
+- [Entrega da Pessoa 2 e Git](doacao-alimentos/docs/PESSOA2_ETAPA6_ENTREGA_FINAL.md)
+- [Roteiro de apresentação](doacao-alimentos/docs/ROTEIRO_APRESENTACAO.md)
+- [Contrato dos endpoints da API](doafacil-api/docs/CONTRATO_API.md)
 
-/instituicao/listar
-/instituicao/inserir
-/instituicao/alterar
-/instituicao/deletar
+## Observações
 
-Doações
-
-/doacao/listar
-/doacao/inserir
-/doacao/alterar
-/doacao/deletar
-
-Fluxo de uma operação
-
-Exemplo de cadastro de um doador:
-
-formDoador.jsp
-      ↓
-DoadorController
-      ↓
-DoadorService
-      ↓
-Validações e formatadores
-      ↓
-DoadorDAO
-      ↓
-MySQL
-      ↓
-listaDoador.jsp
-
-Esse fluxo demonstra a separação de responsabilidades utilizada no projeto.
-
-Regras de negócio implementadas
-
-Doadores
-
-nome obrigatório;
-
-CPF/CNPJ obrigatório;
-
-e-mail obrigatório;
-
-telefone obrigatório;
-
-cidade obrigatória;
-
-CPF/CNPJ não pode ser duplicado;
-
-e-mail não pode ser duplicado;
-
-telefone não pode ser duplicado;
-
-telefone é salvo em formato padronizado;
-
-CPF/CNPJ é salvo em formato padronizado;
-
-nome e cidade são salvos com capitalização padronizada;
-
-um doador vinculado a uma doação não pode ser excluído.
-
-Instituições
-
-nome obrigatório;
-
-endereço obrigatório;
-
-telefone obrigatório;
-
-e-mail obrigatório;
-
-cidade obrigatória;
-
-e-mail não pode ser duplicado;
-
-telefone não pode ser duplicado;
-
-telefone é salvo em formato padronizado;
-
-nome e cidade são salvos com capitalização padronizada;
-
-uma instituição vinculada a uma doação não pode ser excluída.
-
-Doações
-
-um doador deve ser selecionado;
-
-uma instituição deve ser selecionada;
-
-descrição dos itens é obrigatória;
-
-data da doação é obrigatória.
-
-Trabalho acadêmico
-
-Projeto desenvolvido para a disciplina Aplicações para Internet.
-
-O objetivo do trabalho é desenvolver uma aplicação web em Java utilizando MVC, DAO e Service, banco de dados MySQL e um CRUD completo, aplicando organização estrutural, modularidade e separação de responsabilidades.
-
-Repositório
-
-GitHub:
-
-https://github.com/leandrosanti10-afk/doacao-alimentos
+Este é um projeto acadêmico. A autenticação JWT atual usa credenciais de integração entre os servidores; para um sistema publicado, seriam necessários controles adicionais como HTTPS, gerenciamento seguro de segredos, usuários individuais conforme o requisito do produto e testes de segurança mais amplos.
